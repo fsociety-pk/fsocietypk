@@ -7,6 +7,11 @@ import { challengeService } from '../services/challenge.service';
 import { IChallenge } from '../types';
 import { toast } from 'react-hot-toast';
 
+type FlagFeedback = {
+  type: 'success' | 'error';
+  message: string;
+};
+
 const ChallengeDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -18,6 +23,7 @@ const ChallengeDetail: React.FC = () => {
   const [currentFlagStep, setCurrentFlagStep] = useState(1);
   const [completedFlagSteps, setCompletedFlagSteps] = useState<number[]>([]);
   const [flagValues, setFlagValues] = useState<string[]>([]);
+  const [flagFeedback, setFlagFeedback] = useState<FlagFeedback | null>(null);
 
   const getProgressStorageKey = (challengeId: string) => `flag-progress:v2:${challengeId}`;
 
@@ -60,6 +66,7 @@ const ChallengeDetail: React.FC = () => {
 
         setChallenge(challengeData);
         setFlagValues(Array.from({ length: totalSteps }, () => ''));
+        setFlagFeedback(null);
 
         if (totalSteps > 1) {
           setCompletedFlagSteps(savedProgress);
@@ -115,6 +122,10 @@ const ChallengeDetail: React.FC = () => {
     if (totalFlagSteps > 1 && orderedServerFlags.length === totalFlagSteps) {
       const expectedFlag = orderedServerFlags[step - 1];
       if (expectedFlag && enteredFlag !== expectedFlag) {
+        setFlagFeedback({
+          type: 'error',
+          message: `ACCESS_DENIED :: INVALID_FLAG_${step} :: SIGNATURE_MISMATCH`,
+        });
         toast.error(`INVALID FLAG ${step}: ACCESS DENIED`);
         return;
       }
@@ -134,6 +145,10 @@ const ChallengeDetail: React.FC = () => {
         saveFlagProgress(id, updatedSteps);
 
         if (isFinalStep) {
+          setFlagFeedback({
+            type: 'success',
+            message: `ACCESS_GRANTED :: FLAG_${step}_VERIFIED :: MISSION_COMPLETE`,
+          });
           toast.success(`ACCESS GRANTED: ${response.data.points} PTS AWARDED`);
           const allDone = Array.from({ length: totalFlagSteps }, (_, index) => index + 1);
           setCompletedFlagSteps(allDone);
@@ -141,13 +156,25 @@ const ChallengeDetail: React.FC = () => {
           setChallenge(prev => prev ? { ...prev, isSolved: true } : null);
         } else {
           const nextStep = currentFlagStep + 1;
+          setFlagFeedback({
+            type: 'success',
+            message: `ACCESS_GRANTED :: FLAG_${step}_VERIFIED :: FLAG_${nextStep}_UNLOCKED`,
+          });
           setCurrentFlagStep(nextStep);
           toast.success(`FLAG ${currentFlagStep} VERIFIED. FLAG ${nextStep} UNLOCKED`);
         }
       } else {
+        setFlagFeedback({
+          type: 'error',
+          message: `ACCESS_DENIED :: INVALID_FLAG_${step} :: RETRY_REQUIRED`,
+        });
         toast.error('INVALID FLAG: ACCESS DENIED');
       }
     } catch (error: any) {
+      setFlagFeedback({
+        type: 'error',
+        message: 'TRANSMISSION_ERROR :: FLAG_VALIDATION_CHANNEL_INTERRUPTED',
+      });
       toast.error(error.message || 'Communication error during submission');
     } finally {
       setSubmitting(false);
@@ -310,6 +337,29 @@ const ChallengeDetail: React.FC = () => {
                         </div>
                       );
                     })}
+
+                    {flagFeedback && (
+                      <motion.div
+                        key={`${flagFeedback.type}-${flagFeedback.message}`}
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={`mt-2 rounded-lg border px-4 py-3 text-xs tracking-wider uppercase font-mono ${
+                          flagFeedback.type === 'success'
+                            ? 'border-neon-green/40 bg-neon-green/10 text-neon-green'
+                            : 'border-red-500/40 bg-red-500/10 text-red-400'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="font-bold">
+                            {flagFeedback.type === 'success' ? '[ VALID_FLAG_SIGNAL ]' : '[ INVALID_FLAG_SIGNAL ]'}
+                          </span>
+                          <span className={flagFeedback.type === 'success' ? 'text-neon-green/70' : 'text-red-300/80'}>
+                            {flagFeedback.type === 'success' ? 'OK' : 'DENIED'}
+                          </span>
+                        </div>
+                        <p className="mt-1 break-words">{flagFeedback.message}</p>
+                      </motion.div>
+                    )}
                   </div>
                 )}
               </div>
