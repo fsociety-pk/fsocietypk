@@ -27,7 +27,7 @@ const POINTS_MAP: Record<string, number> = {
   hard: 200,
   insane: 250,
 };
-const FLAG_REGEX = /^FSOCIETYPK\{.+\}$/i;
+const FLAG_REGEX = /^fsociety\{.+\}$/i;
 
 type Category = (typeof CATEGORIES)[number];
 type Difficulty = (typeof DIFFICULTIES)[number];
@@ -37,7 +37,9 @@ interface FormState {
   description: string;
   category: Category | '';
   difficulty: Difficulty | '';
-  flag: string;
+  flag: string;  // Legacy: single flag
+  flags: Array<{ sequence: number; value: string }>;  // New: multiple flags
+  isMultiFlag: boolean;  // Toggle between single/multiple flags
   hints: string[];
   attachments: string[];
 }
@@ -48,6 +50,8 @@ const INITIAL_FORM: FormState = {
   category: '',
   difficulty: '',
   flag: '',
+  flags: [{ sequence: 1, value: '' }],
+  isMultiFlag: false,
   hints: [''],
   attachments: [''],
 };
@@ -97,6 +101,31 @@ const SubmitChallenge: React.FC = () => {
     setForm((prev) => ({ ...prev, attachments: prev.attachments.filter((_, idx) => idx !== i) }));
   };
 
+  // ── Flag helpers ───────────────────────────────────────────────────────────
+  const setFlag = (value: string) => {
+    setForm((prev) => ({ ...prev, flag: value }));
+    setErrors((prev) => ({ ...prev, flag: undefined }));
+  };
+
+  const setMulFlag = (i: number, field: 'sequence' | 'value', val: string | number) => {
+    const flags = [...form.flags];
+    flags[i] = { ...flags[i], [field]: field === 'sequence' ? Number(val) : val };
+    setForm((prev) => ({ ...prev, flags }));
+  };
+
+  const addFlag = () => {
+    const nextSeq = Math.max(...form.flags.map(f => f.sequence), 0) + 1;
+    setForm((prev) => ({ ...prev, flags: [...prev.flags, { sequence: nextSeq, value: '' }] }));
+  };
+
+  const removeFlag = (i: number) => {
+    setForm((prev) => ({ ...prev, flags: prev.flags.filter((_, idx) => idx !== i) }));
+  };
+
+  const toggleMultiFlag = () => {
+    setForm((prev) => ({ ...prev, isMultiFlag: !prev.isMultiFlag }));
+  };
+
   // ── Validation ──────────────────────────────────────────────────────────────
   const validate = (): boolean => {
     const newErrors: typeof errors = {};
@@ -104,11 +133,27 @@ const SubmitChallenge: React.FC = () => {
     if (!form.description.trim()) newErrors.description = 'Description is required';
     if (!form.category) newErrors.category = 'Select a category';
     if (!form.difficulty) newErrors.difficulty = 'Select a difficulty';
-    if (!form.flag.trim()) {
-      newErrors.flag = 'Flag is required';
-    } else if (!FLAG_REGEX.test(form.flag.trim())) {
-      newErrors.flag = 'Flag must follow format: FSOCIETYPK{...}';
+
+    if (form.isMultiFlag) {
+      // Validate multiple flags
+      const validFlags = form.flags.filter(f => f.value.trim());
+      if (validFlags.length === 0) {
+        newErrors.flag = 'At least one flag is required';
+      } else {
+        const invalidFlag = validFlags.find(f => !FLAG_REGEX.test(f.value.trim()));
+        if (invalidFlag) {
+          newErrors.flag = `Flag must follow format: fsociety{...} (Sequence ${invalidFlag.sequence})`;
+        }
+      }
+    } else {
+      // Validate single flag
+      if (!form.flag.trim()) {
+        newErrors.flag = 'Flag is required';
+      } else if (!FLAG_REGEX.test(form.flag.trim())) {
+        newErrors.flag = 'Flag must follow format: fsociety{...}';
+      }
     }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -123,15 +168,23 @@ const SubmitChallenge: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      const payload = {
+      const payload: any = {
         title: form.title.trim(),
         description: form.description.trim(),
         category: form.category,
         difficulty: form.difficulty,
-        flag: form.flag.trim(),
         hints: form.hints.filter((h) => h.trim()),
         attachments: form.attachments.filter((a) => a.trim()),
       };
+
+      // Add flag(s) based on mode
+      if (form.isMultiFlag) {
+        payload.flags = form.flags
+          .filter(f => f.value.trim())
+          .map(f => ({ sequence: f.sequence, value: f.value.trim() }));
+      } else {
+        payload.flag = form.flag.trim();
+      }
 
       const res = await challengeService.createChallenge(payload);
       setSubmitted({ id: res.data._id, title: res.data.title, points: res.data.points });
@@ -339,24 +392,121 @@ const SubmitChallenge: React.FC = () => {
           </div>
 
           {/* ── Flag ────────────────────────────────────────────── */}
-          <FormSection label="Flag" required hint='Must follow format: FSOCIETYPK{your_flag_here}'>
-            <div className="relative">
-              <Flag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-              <input
-                id="challenge-flag"
-                type="text"
-                value={form.flag}
-                onChange={set('flag')}
-                placeholder="FSOCIETYPK{your_flag_here}"
-                className={`${inputClass(!!errors.flag)} pl-10`}
-              />
+          <FormSection label="Flag(s)" required hint='Must follow format: fsociety{your_flag_here}'>
+            {/* Toggle for single vs multiple flags */}
+            <div className="flex items-center gap-3 p-3 bg-zinc-900/50 rounded-lg border border-zinc-800 mb-4">
+              <button
+                type="button"
+                onClick={toggleMultiFlag}
+                className={`px-3 py-1.5 rounded text-xs font-bold uppercase tracking-widest transition-all ${
+                  form.isMultiFlag
+                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                    : 'bg-neon-green/20 text-neon-green border border-neon-green/30'
+                }`}
+              >
+                {form.isMultiFlag ? 'MULTI-FLAG MODE' : 'SINGLE FLAG MODE'}
+              </button>
+              <span className="text-[10px] text-zinc-500">
+                {form.isMultiFlag ? 'Story-based challenge with multiple sequential flags' : 'Single flag for standard challenges'}
+              </span>
             </div>
-            {/* Flag format preview */}
-            {form.flag && !errors.flag && FLAG_REGEX.test(form.flag.trim()) && (
-              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-1.5 text-emerald-400 text-xs mt-1">
-                <CheckCircle2 className="w-3.5 h-3.5" /> Valid flag format
-              </motion.p>
+
+            {/* Single Flag Input */}
+            {!form.isMultiFlag && (
+              <div className="relative">
+                <Flag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                <input
+                  id="challenge-flag"
+                  type="text"
+                  value={form.flag}
+                  onChange={(e) => setFlag(e.target.value)}
+                  placeholder="fsociety{your_flag_here}"
+                  className={`${inputClass(!!errors.flag)} pl-10`}
+                />
+              </div>
             )}
+
+            {/* Multiple Flags Input */}
+            {form.isMultiFlag && (
+              <div className="space-y-3">
+                {form.flags.map((flag, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-end gap-3"
+                  >
+                    <div className="flex-shrink-0">
+                      <label className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold block mb-1">
+                        Sequence
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={flag.sequence}
+                        onChange={(e) => setMulFlag(i, 'sequence', e.target.value)}
+                        className="w-16 bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-2 text-sm focus:border-neon-green outline-none transition-all text-white"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold block mb-1">
+                        Flag #{i + 1}
+                      </label>
+                      <input
+                        type="text"
+                        value={flag.value}
+                        onChange={(e) => setMulFlag(i, 'value', e.target.value)}
+                        placeholder="fsociety{...}"
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm focus:border-neon-green outline-none transition-all text-white placeholder-zinc-600"
+                      />
+                    </div>
+                    {form.flags.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeFlag(i)}
+                        className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
+                        title="Remove flag"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </motion.div>
+                ))}
+                <button
+                  type="button"
+                  onClick={addFlag}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-neon-green/30 text-neon-green text-xs font-bold uppercase tracking-widest hover:border-neon-green/60 transition-all"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Add Flag
+                </button>
+              </div>
+            )}
+
+            {/* Flag validation feedback */}
+            {form.isMultiFlag ? (
+              form.flags.some(f => f.value && FLAG_REGEX.test(f.value.trim())) && !errors.flag && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex items-center gap-1.5 text-emerald-400 text-xs mt-2"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  {form.flags.filter(f => f.value.trim()).length} valid flag(s)
+                </motion.p>
+              )
+            ) : (
+              form.flag && !errors.flag && FLAG_REGEX.test(form.flag.trim()) && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex items-center gap-1.5 text-emerald-400 text-xs mt-2"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Valid flag format
+                </motion.p>
+              )
+            )}
+
             {errors.flag && <FieldError msg={errors.flag} />}
           </FormSection>
 

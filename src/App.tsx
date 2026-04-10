@@ -12,54 +12,74 @@ import PublicRoute from './components/common/PublicRoute';
 
 // ── Pages ────────────────────────────────────────────────────────
 import Login from './pages/Login';
-import Signup from './pages/Signup';
-import Challenges from './pages/Challenges';
+import Signup from './pages/Signup';import Dashboard from './pages/Dashboard';import Challenges from './pages/Challenges';
 import ChallengeDetail from './pages/ChallengeDetail';
 import Leaderboard from './pages/Leaderboard';
 import Profile from './pages/Profile';
+import Notifications from './pages/Notifications';
 import AdminDashboard from './pages/admin/Dashboard';
 import ManageChallenges from './pages/admin/ManageChallenges';
 import ManageUsers from './pages/admin/ManageUsers';
 import Analytics from './pages/admin/Analytics';
-import AboutAdmin from './pages/AboutAdmin';
-import AdminAboutAdmin from './pages/admin/AdminAboutAdmin';
+import AdminSettings from './pages/admin/Settings';
 import SubmitChallenge from './pages/SubmitChallenge';
-
-// ── Utils / Components ──────────────────────────────────────────
-const ComingSoon = ({ title }: { title: string }) => (
-  <div className="min-h-[60vh] flex items-center justify-center font-mono">
-    <div className="text-center">
-      <p className="text-4xl text-neon-green animate-pulse uppercase tracking-widest">
-        {title}
-      </p>
-      <p className="text-zinc-500 mt-2 text-sm">
-        &gt; INITIALIZING_{title.toLowerCase().replace(/\s+/g, '_')}...
-      </p>
-    </div>
-  </div>
-);
-
 
 function App() {
   const { setUser, setLoading, isLoading } = useAuthStore();
 
   useEffect(() => {
     const initAuth = async () => {
+      setLoading(true);
+      
+      // Set 10 second timeout for auth check
+      const timeoutId = setTimeout(() => {
+        console.warn('Auth check timed out after 10s');
+        setLoading(false);
+      }, 10000);
+
       try {
         const response = await authService.getMe();
-        setUser(response.data.user);
+        clearTimeout(timeoutId);
+        // getMe returns user directly in data, not wrapped in { user }
+        setUser(response.data);
       } catch (error: any) {
+        clearTimeout(timeoutId);
         setUser(null);
-        // If error status is 401, session might be expired
+        // Silently handle 401 on initial load (user not logged in)
         if (error.response?.status === 401 && !['/login', '/signup'].includes(window.location.pathname)) {
-          toast.error('SESSION_EXPIRED');
+          // Only show toast if it's a session expired (not initial load)
+          if (error.response?.data?.message?.includes('expired')) {
+            toast.error('SESSION_EXPIRED');
+          }
         }
       } finally {
         setLoading(false);
       }
     };
 
-    initAuth();
+    // Check if stored auth is valid before attempting verification
+    const storedAuth = localStorage.getItem('fsocietypk-auth');
+    if (storedAuth) {
+      try {
+        const parsed = JSON.parse(storedAuth);
+        // Only verify if we have a valid user object
+        if (parsed.state?.user?.username && parsed.state?.user?._id) {
+          initAuth();
+        } else {
+          // Invalid stored auth state - clear and skip verification
+          localStorage.removeItem('fsocietypk-auth');
+          setLoading(false);
+        }
+      } catch (error) {
+        // Corrupted localStorage - clear it and skip verification
+        console.warn('Corrupted auth storage, clearing...');
+        localStorage.removeItem('fsocietypk-auth');
+        setLoading(false);
+      }
+    } else {
+      // No stored auth, quick verification
+      initAuth();
+    }
   }, [setUser, setLoading]);
 
   if (isLoading) {
@@ -102,14 +122,14 @@ function App() {
           <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
 
           {/* Protected Area */}
-          <Route path="/dashboard" element={<ProtectedRoute><Challenges /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/challenges" element={<ProtectedRoute><Challenges /></ProtectedRoute>} />
           <Route path="/challenges/:id" element={<ProtectedRoute><ChallengeDetail /></ProtectedRoute>} />
           <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/profile/:username" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/submit-challenge" element={<ProtectedRoute><SubmitChallenge /></ProtectedRoute>} />
-          <Route path="/about-admin" element={<ProtectedRoute><AboutAdmin /></ProtectedRoute>} />
+          <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
 
           {/* Admin Command Center */}
           <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminLayout /></ProtectedRoute>}>
@@ -117,8 +137,7 @@ function App() {
             <Route path="analytics" element={<Analytics />} />
             <Route path="challenges" element={<ManageChallenges />} />
             <Route path="users" element={<ManageUsers />} />
-            <Route path="about-admin" element={<AdminAboutAdmin />} />
-            <Route path="settings" element={<ComingSoon title="Platform Settings" />} />
+            <Route path="settings" element={<AdminSettings />} />
           </Route>
 
           {/* 404 Rescue */}

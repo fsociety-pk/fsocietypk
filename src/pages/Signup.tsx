@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { UserPlus, Mail, Lock, User, Loader2 } from 'lucide-react';
+import { UserPlus, Lock, User, Loader2 } from 'lucide-react';
 import { registerSchema, RegisterInput } from '../types';
 import { authService } from '../services/auth.service';
 import { useAuthStore } from '../store/authStore';
@@ -29,7 +29,7 @@ const Signup: React.FC = () => {
       toast.success('Identity Created. Welcome to the underground.');
       navigate('/dashboard');
     } catch (error: any) {
-      toast.error(error.message || 'Registration failed. Try a different username or email.');
+      toast.error(error.message || 'Registration failed. Try a different username.');
     } finally {
       setIsLoading(false);
     }
@@ -78,30 +78,11 @@ const Signup: React.FC = () => {
 
             <div>
               <label className="text-xs uppercase tracking-widest text-zinc-500 font-bold mb-1 block">
-                Email Address
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
-                  <Mail className="h-5 w-5" />
-                </div>
-                <input
-                  {...register('email')}
-                  type="email"
-                  className={`block w-full pl-10 pr-3 py-3 bg-black border ${
-                    errors.email ? 'border-red-500' : 'border-zinc-800 focus:border-neon-green'
-                  } rounded-lg text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-neon-green transition-all`}
-                  placeholder="agent@fsociety.pk"
-                />
-              </div>
-              {errors.email && (
-                <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="text-xs uppercase tracking-widest text-zinc-500 font-bold mb-1 block">
                 Password
               </label>
+              <p className="text-xs text-zinc-500 mb-2">
+                Must include: uppercase, lowercase, number, and special character
+              </p>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
                   <Lock className="h-5 w-5" />

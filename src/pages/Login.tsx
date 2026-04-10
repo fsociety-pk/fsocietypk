@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { LogIn, Mail, Lock, Loader2 } from 'lucide-react';
+import { LogIn, User, Lock, Loader2 } from 'lucide-react';
 import { loginSchema, LoginInput } from '../types';
 import { authService } from '../services/auth.service';
 import { useAuthStore } from '../store/authStore';
@@ -56,23 +56,23 @@ const Login: React.FC = () => {
           <div className="space-y-4">
             <div>
               <label className="text-xs uppercase tracking-widest text-zinc-500 font-bold mb-1 block">
-                Email Address
+                Username
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
-                  <Mail className="h-5 w-5" />
+                  <User className="h-5 w-5" />
                 </div>
                 <input
-                  {...register('email')}
-                  type="email"
+                  {...register('username')}
+                  type="text"
                   className={`block w-full pl-10 pr-3 py-3 bg-black border ${
-                    errors.email ? 'border-red-500' : 'border-zinc-800 focus:border-neon-green'
+                    errors.username ? 'border-red-500' : 'border-zinc-800 focus:border-neon-green'
                   } rounded-lg text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-neon-green transition-all`}
-                  placeholder="agent@fsociety.pk"
+                  placeholder="zero_cool"
                 />
               </div>
-              {errors.email && (
-                <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>
+              {errors.username && (
+                <p className="mt-1 text-xs text-red-500">{errors.username.message}</p>
               )}
             </div>
 

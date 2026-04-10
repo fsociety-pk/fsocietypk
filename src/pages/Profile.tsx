@@ -4,7 +4,6 @@ import {
   User as UserIcon, 
   Shield, 
   Trophy, 
-  Mail, 
   Hash, 
   Settings, 
   History, 
@@ -121,7 +120,6 @@ const Profile = () => {
               {profile?.role === 'admin' && <Shield className="text-status-error w-6 h-6" />}
             </h1>
             <div className="flex flex-wrap justify-center md:justify-start gap-4 text-sm text-text-muted font-mono">
-              <span className="flex items-center gap-2"><Mail size={14} /> {profile?.email}</span>
               <span className="flex items-center gap-2"><Hash size={14} /> UUID: {profile?._id.slice(-8)}</span>
             </div>
           </div>

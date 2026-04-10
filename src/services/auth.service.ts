@@ -10,6 +10,13 @@ export interface AuthResponse {
   };
 }
 
+// Response for /auth/me endpoint (returns user directly, not wrapped in { user })
+export interface GetMeResponse {
+  success: boolean;
+  message: string;
+  data: IUser;
+}
+
 export const authService = {
   login: async (data: LoginInput): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>('/auth/login', data);
@@ -26,8 +33,8 @@ export const authService = {
     return response.data;
   },
 
-  getMe: async (): Promise<AuthResponse> => {
-    const response = await api.get<AuthResponse>('/auth/me');
+  getMe: async (): Promise<GetMeResponse> => {
+    const response = await api.get<GetMeResponse>('/auth/me');
     return response.data;
   },
 };

@@ -6,20 +6,37 @@ import {
   Flag, 
   Settings, 
   ChevronLeft, 
-  Terminal,
   ShieldAlert,
   Menu,
   X,
   BarChart4,
-  Info
+  Bell
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { clsx } from 'clsx';
+import { notificationService } from '../../services/notificationService';
+import companyLogo from '../../../images/logo.png';
 
 const AdminLayout: React.FC = () => {
   const { user } = useAuthStore();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
+  const [unreadCount, setUnreadCount] = React.useState(0);
+
+  React.useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const count = await notificationService.getUnreadCount();
+        setUnreadCount(count);
+      } catch {
+        // Keep admin shell responsive even if notification endpoint fails.
+      }
+    };
+
+    fetchUnreadCount();
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Final check: only admins should ever see this layout
   if (user?.role !== 'admin') {
@@ -31,7 +48,6 @@ const AdminLayout: React.FC = () => {
     { name: 'Analytics', path: '/admin/analytics', icon: BarChart4 },
     { name: 'Users', path: '/admin/users', icon: Users },
     { name: 'Challenges', path: '/admin/challenges', icon: Flag },
-    { name: 'About Admin', path: '/admin/about-admin', icon: Info },
     { name: 'Settings', path: '/admin/settings', icon: Settings },
   ];
 
@@ -46,7 +62,7 @@ const AdminLayout: React.FC = () => {
       )}>
         <div className="p-6 flex items-center justify-between border-b border-surface-border h-16">
           <Link to="/" className={clsx("flex items-center gap-2", !isSidebarOpen && "justify-center w-full")}>
-            <Terminal className="text-neon-green w-6 h-6" />
+            <img src={companyLogo} alt="FsocietyPK logo" className="w-6 h-6 object-contain" />
             {isSidebarOpen && <span className="font-display font-bold text-white tracking-widest">FSOCIETY</span>}
           </Link>
           {isSidebarOpen && (
@@ -107,6 +123,19 @@ const AdminLayout: React.FC = () => {
            </div>
 
            <div className="flex items-center gap-4">
+              <Link
+                to="/notifications"
+                className="relative text-text-muted hover:text-neon-green p-2 bg-surface rounded-md border border-surface-border transition-colors"
+                title="Notifications"
+              >
+                <Bell size={18} />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-neon-green text-black text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+              </Link>
+
               <div className="flex flex-col items-end">
                 <span className="text-[10px] text-zinc-500 font-mono">SYS_ADMIN</span>
                 <span className="text-xs font-bold text-neon-green">{user?.username.toUpperCase()}</span>

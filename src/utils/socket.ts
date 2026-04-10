@@ -14,11 +14,11 @@ class SocketService {
     });
 
     this.socket.on('connect', () => {
-      console.log('🔌 Connected to WebSocket server');
+      console.log('Connected to WebSocket server');
     });
 
     this.socket.on('disconnect', () => {
-      console.log('🔌 Disconnected from WebSocket server');
+      console.log('Disconnected from WebSocket server');
     });
   }
 

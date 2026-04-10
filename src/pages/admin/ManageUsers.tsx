@@ -39,8 +39,7 @@ const ManageUsers: React.FC = () => {
   });
 
   const filteredUsers = usersData?.users.filter(u => 
-    u.username.toLowerCase().includes(search.toLowerCase()) || 
-    u.email.toLowerCase().includes(search.toLowerCase())
+    u.username.toLowerCase().includes(search.toLowerCase())
   ) || [];
 
   if (isLoading) {
@@ -108,7 +107,6 @@ const ManageUsers: React.FC = () => {
                              {user.username}
                              {user.role === 'admin' && <Shield size={12} className="text-status-error" />}
                           </p>
-                          <p className="text-[10px] text-text-muted lowercase">{user.email}</p>
                         </div>
                       </div>
                     </td>

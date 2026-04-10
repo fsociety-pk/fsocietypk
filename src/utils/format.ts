@@ -51,16 +51,16 @@ export const getDifficultyColor = (difficulty: string): string => {
 
 export const getCategoryIcon = (category: string): string => {
   const map: Record<string, string> = {
-    web: '🌐',
-    pwn: '💥',
-    rev: '🔬',
-    crypto: '🔐',
-    forensics: '🔍',
-    osint: '👁',
-    misc: '🎲',
-    stego: '🖼',
-    network: '📡',
-    mobile: '📱',
+    web: 'WEB',
+    pwn: 'PWN',
+    rev: 'REV',
+    crypto: 'CRY',
+    forensics: 'FOR',
+    osint: 'OSI',
+    misc: 'MSC',
+    stego: 'STG',
+    network: 'NET',
+    mobile: 'MOB',
   }
-  return map[category.toLowerCase()] ?? '🏴'
+  return map[category.toLowerCase()] ?? 'GEN'
 }
