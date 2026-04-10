@@ -17,7 +17,30 @@ const ChallengeDetail: React.FC = () => {
   const [unlockedHintIds, setUnlockedHintIds] = useState<string[]>([]);
   const [currentFlagStep, setCurrentFlagStep] = useState(1);
   const [completedFlagSteps, setCompletedFlagSteps] = useState<number[]>([]);
-  const [flag, setFlag] = useState('');
+  const [flagValues, setFlagValues] = useState<string[]>([]);
+
+  const getProgressStorageKey = (challengeId: string) => `flag-progress:${challengeId}`;
+
+  const saveFlagProgress = (challengeId: string, steps: number[]) => {
+    const uniqueSorted = [...new Set(steps)].sort((a, b) => a - b);
+    localStorage.setItem(getProgressStorageKey(challengeId), JSON.stringify(uniqueSorted));
+  };
+
+  const readFlagProgress = (challengeId: string, totalSteps: number): number[] => {
+    const raw = localStorage.getItem(getProgressStorageKey(challengeId));
+    if (!raw) return [];
+
+    try {
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+      return [...new Set(parsed)]
+        .map((n) => Number(n))
+        .filter((n) => Number.isInteger(n) && n >= 1 && n <= totalSteps)
+        .sort((a, b) => a - b);
+    } catch {
+      return [];
+    }
+  };
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -26,14 +49,22 @@ const ChallengeDetail: React.FC = () => {
         const response = await challengeService.getChallengeById(id);
         const challengeData = response.data;
         const totalSteps = challengeData.flags?.length || (challengeData.flag ? 1 : 1);
+        const savedProgress = readFlagProgress(id, totalSteps);
 
         setChallenge(challengeData);
-        if (challengeData.isSolved) {
-          setCompletedFlagSteps(Array.from({ length: totalSteps }, (_, index) => index + 1));
-          setCurrentFlagStep(totalSteps);
+        setFlagValues(Array.from({ length: totalSteps }, () => ''));
+
+        if (totalSteps > 1) {
+          setCompletedFlagSteps(savedProgress);
+          setCurrentFlagStep(Math.min(totalSteps, savedProgress.length + 1));
         } else {
-          setCompletedFlagSteps([]);
-          setCurrentFlagStep(1);
+          if (challengeData.isSolved) {
+            setCompletedFlagSteps([1]);
+            setCurrentFlagStep(1);
+          } else {
+            setCompletedFlagSteps([]);
+            setCurrentFlagStep(1);
+          }
         }
       } catch (error: any) {
         toast.error(error.message || 'Error fetching mission data');
@@ -47,48 +78,44 @@ const ChallengeDetail: React.FC = () => {
   }, [id, navigate]);
 
   const handleUnlockHint = async (hintId: string) => {
-    if (!id) return;
-
     setUnlockingHintId(hintId);
-    try {
-      const response = await challengeService.unlockHint(id, hintId);
-      const unlockedContent = response.data.content;
-
-      setChallenge((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          hints: prev.hints.map((h) => (h._id === hintId ? { ...h, content: unlockedContent } : h)),
-        };
-      });
-
-      setUnlockedHintIds((prev) => (prev.includes(hintId) ? prev : [...prev, hintId]));
-      toast.success('Hint unlocked');
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Failed to unlock hint');
-    } finally {
-      setUnlockingHintId(null);
-    }
+    setUnlockedHintIds((prev) => (prev.includes(hintId) ? prev : [...prev, hintId]));
+    setUnlockingHintId(null);
   };
 
   const totalFlagSteps = challenge
     ? (challenge.flags?.length || (challenge.flag ? 1 : 1))
     : 1;
 
-  const handleSubmitFlag = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!id || !flag.trim()) return;
+  const isChallengeSolvedUI = totalFlagSteps > 1
+    ? completedFlagSteps.length >= totalFlagSteps
+    : Boolean(challenge?.isSolved || completedFlagSteps.length >= 1);
+
+  const handleSubmitFlag = async (step: number) => {
+    if (!id) return;
+    if (step !== currentFlagStep || isChallengeSolvedUI) return;
+
+    const enteredFlag = (flagValues[step - 1] || '').trim();
+    if (!enteredFlag) return;
 
     setSubmitting(true);
     try {
-      const response = await challengeService.submitFlag(id, flag);
+      const response = await challengeService.submitFlag(id, enteredFlag);
       if (response.data.correct) {
         const isFinalStep = currentFlagStep >= totalFlagSteps;
+        const updatedSteps = completedFlagSteps.includes(currentFlagStep)
+          ? completedFlagSteps
+          : [...completedFlagSteps, currentFlagStep];
 
-        setCompletedFlagSteps((prev) => (prev.includes(currentFlagStep) ? prev : [...prev, currentFlagStep]));
+        setCompletedFlagSteps(updatedSteps);
+        setFlagValues((prev) => prev.map((value, index) => (index === step - 1 ? value.trim() : value)));
+        saveFlagProgress(id, updatedSteps);
 
         if (isFinalStep) {
           toast.success(`ACCESS GRANTED: ${response.data.points} PTS AWARDED`);
+          const allDone = Array.from({ length: totalFlagSteps }, (_, index) => index + 1);
+          setCompletedFlagSteps(allDone);
+          saveFlagProgress(id, allDone);
           setChallenge(prev => prev ? { ...prev, isSolved: true } : null);
         } else {
           const nextStep = currentFlagStep + 1;
@@ -102,7 +129,6 @@ const ChallengeDetail: React.FC = () => {
       toast.error(error.message || 'Communication error during submission');
     } finally {
       setSubmitting(false);
-      setFlag('');
     }
   };
 
@@ -151,46 +177,6 @@ const ChallengeDetail: React.FC = () => {
                 {challenge.description}
               </div>
 
-              {/* Flag Stages */}
-              {totalFlagSteps > 0 && (
-                <div className="space-y-3 pt-6 border-t border-zinc-800">
-                  <h3 className="text-sm font-bold text-zinc-500 uppercase flex items-center gap-2">
-                    <Terminal className="w-4 h-4" /> FLAG_STAGES
-                  </h3>
-                  <div className="space-y-2">
-                    {Array.from({ length: totalFlagSteps }, (_, index) => {
-                      const step = index + 1;
-                      const isStepCompleted = challenge.isSolved || completedFlagSteps.includes(step);
-                      const isCurrentStep = !challenge.isSolved && step === currentFlagStep;
-                      const isStepLocked = !isStepCompleted && !isCurrentStep;
-
-                      return (
-                      <div
-                        key={`flag-stage-${step}`}
-                        className={`px-3 py-2 bg-zinc-900 border rounded-lg text-xs break-all ${
-                          isStepCompleted
-                            ? 'border-neon-green/40 text-neon-green'
-                            : isCurrentStep
-                              ? 'border-neon-green/30 text-zinc-300'
-                              : 'border-zinc-800 text-zinc-600'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <span>
-                            <span className="text-zinc-500 mr-2">FLAG {step}:</span>
-                            fsociety{'{'}your_flag_here{'}'}
-                          </span>
-                          <span className="text-[10px] uppercase tracking-widest">
-                            {isStepCompleted ? 'Verified' : isCurrentStep ? 'Active' : isStepLocked ? 'Locked' : 'Pending'}
-                          </span>
-                        </div>
-                      </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
               {/* Files */}
               {(challenge.files.length > 0 || challenge.attachments.length > 0) && (
                 <div className="space-y-3 pt-6 border-t border-zinc-800">
@@ -231,18 +217,18 @@ const ChallengeDetail: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
               className={`p-1 mb-8 rounded-xl bg-gradient-to-br transition-all ${
-                challenge.isSolved ? 'from-neon-green/20 to-transparent p-0' : 'from-neon-green/10 to-transparent'
+                isChallengeSolvedUI ? 'from-neon-green/20 to-transparent p-0' : 'from-neon-green/10 to-transparent'
               }`}
             >
               <div className={`p-6 bg-zinc-900/90 backdrop-blur rounded-xl border border-zinc-800 ${
-                challenge.isSolved ? 'border-neon-green/40' : ''
+                isChallengeSolvedUI ? 'border-neon-green/40' : ''
               }`}>
                 <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                   <Terminal className="w-5 h-5 text-neon-green" />
                   {`FLAG_SUBMISSION (${Math.min(currentFlagStep, totalFlagSteps)}/${totalFlagSteps})`}
                 </h3>
                 
-                {challenge.isSolved ? (
+                {isChallengeSolvedUI ? (
                   <div className="flex items-center gap-3 text-neon-green bg-neon-green/5 p-4 rounded-lg border border-neon-green/20">
                     <CheckCircle2 className="w-6 h-6 shrink-0" />
                     <div>
@@ -251,24 +237,58 @@ const ChallengeDetail: React.FC = () => {
                     </div>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmitFlag} className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="fsociety{your_flag_here}"
-                      value={flag}
-                      onChange={(e) => setFlag(e.target.value)}
-                      disabled={submitting}
-                      className="flex-grow bg-black border border-zinc-800 rounded-lg px-4 py-3 outline-none focus:border-neon-green transition-all text-sm"
-                    />
-                    <button
-                      type="submit"
-                      disabled={submitting || !flag.trim()}
-                      className="bg-neon-green text-black px-6 rounded-lg font-bold hover:bg-neon-green/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm"
-                    >
-                      {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-                      SUBMIT
-                    </button>
-                  </form>
+                  <div className="space-y-3">
+                    {Array.from({ length: totalFlagSteps }, (_, index) => {
+                      const step = index + 1;
+                      const isCompleted = completedFlagSteps.includes(step);
+                      const isActive = step === currentFlagStep;
+                      const isLocked = !isCompleted && !isActive;
+
+                      return (
+                        <div
+                          key={`flag-input-${step}`}
+                          className={`p-3 rounded-lg border ${
+                            isCompleted
+                              ? 'border-neon-green/40 bg-neon-green/5'
+                              : isActive
+                                ? 'border-neon-green/30 bg-zinc-900/40'
+                                : 'border-zinc-800 bg-zinc-900/20'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs uppercase tracking-widest text-zinc-400">Flag {step}</span>
+                            <span className={`text-[10px] uppercase tracking-widest ${
+                              isCompleted ? 'text-neon-green' : isActive ? 'text-yellow-400' : 'text-zinc-600'
+                            }`}>
+                              {isCompleted ? 'Verified' : isActive ? 'Active' : 'Locked'}
+                            </span>
+                          </div>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              placeholder="fsociety{your_flag_here}"
+                              value={flagValues[index] || ''}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                setFlagValues((prev) => prev.map((item, i) => (i === index ? value : item)));
+                              }}
+                              disabled={submitting || isLocked || isCompleted}
+                              className="flex-grow bg-black border border-zinc-800 rounded-lg px-4 py-2.5 outline-none focus:border-neon-green transition-all text-sm disabled:opacity-60"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleSubmitFlag(step)}
+                              disabled={submitting || isLocked || isCompleted || !(flagValues[index] || '').trim()}
+                              className="bg-neon-green text-black px-4 rounded-lg font-bold hover:bg-neon-green/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-xs"
+                            >
+                              {submitting && isActive ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                              {isCompleted ? 'DONE' : isLocked ? 'LOCKED' : 'SUBMIT'}
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
               </div>
             </motion.div>
