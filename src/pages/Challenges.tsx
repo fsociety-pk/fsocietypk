@@ -59,6 +59,25 @@ const Challenges: React.FC = () => {
     }
   };
 
+  const getProgressStorageKey = (challengeId: string) => `flag-progress:v2:${challengeId}`;
+
+  const getCompletedStepsFromStorage = (challengeId: string, totalSteps: number): number => {
+    if (totalSteps <= 1) return 0;
+
+    const raw = localStorage.getItem(getProgressStorageKey(challengeId));
+    if (!raw) return 0;
+
+    try {
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return 0;
+      return [...new Set(parsed)]
+        .map((n) => Number(n))
+        .filter((n) => Number.isInteger(n) && n >= 1 && n <= totalSteps).length;
+    } catch {
+      return 0;
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black font-mono">
@@ -121,6 +140,20 @@ const Challenges: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <AnimatePresence mode="popLayout">
             {filteredChallenges.map((challenge, index) => (
+              (() => {
+                const totalFlagSteps = challenge.flags?.length || (challenge.flag ? 1 : 1);
+                const completedSteps = totalFlagSteps > 1
+                  ? getCompletedStepsFromStorage(challenge._id, totalFlagSteps)
+                  : (challenge.isSolved ? 1 : 0);
+                const isSolvedUI = totalFlagSteps > 1
+                  ? completedSteps >= totalFlagSteps
+                  : Boolean(challenge.isSolved);
+                const progressPercent = Math.round((completedSteps / totalFlagSteps) * 100);
+                const radius = 13;
+                const circumference = 2 * Math.PI * radius;
+                const dashOffset = circumference * (1 - progressPercent / 100);
+
+                return (
               <motion.div
                 key={challenge._id}
                 initial={{ opacity: 0, y: 20 }}
@@ -131,13 +164,48 @@ const Challenges: React.FC = () => {
                 <Link
                   to={`/challenges/${challenge._id}`}
                   className={`block border rounded-xl p-6 bg-zinc-900/30 hover:bg-zinc-900/50 transition-all group relative overflow-hidden ${
-                    challenge.isSolved ? 'border-neon-green/30' : 'border-zinc-800 hover:border-neon-green/50'
+                    isSolvedUI ? 'border-neon-green/30' : 'border-zinc-800 hover:border-neon-green/50'
                   }`}
                 >
-                  {/* Solve Status Icon */}
-                  {challenge.isSolved && (
+                  {/* Solve Status Icon (single-flag) */}
+                  {totalFlagSteps <= 1 && isSolvedUI && (
                     <div className="absolute top-4 right-4 text-neon-green">
                       <CheckCircle2 className="w-6 h-6" />
+                    </div>
+                  )}
+
+                  {/* Multi-flag Progress */}
+                  {totalFlagSteps > 1 && (
+                    <div className="absolute top-4 right-4 flex items-center gap-2">
+                      <div className="relative w-8 h-8">
+                        <svg className="w-8 h-8 -rotate-90" viewBox="0 0 32 32">
+                          <circle
+                            cx="16"
+                            cy="16"
+                            r={radius}
+                            fill="none"
+                            stroke="rgba(63, 63, 70, 0.8)"
+                            strokeWidth="3"
+                          />
+                          <circle
+                            cx="16"
+                            cy="16"
+                            r={radius}
+                            fill="none"
+                            stroke="rgba(0, 255, 65, 0.95)"
+                            strokeWidth="3"
+                            strokeDasharray={circumference}
+                            strokeDashoffset={dashOffset}
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                        <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-neon-green">
+                          {progressPercent}%
+                        </span>
+                      </div>
+                      <span className="text-[10px] uppercase tracking-widest text-zinc-400">
+                        {completedSteps}/{totalFlagSteps}
+                      </span>
                     </div>
                   )}
 
@@ -171,6 +239,8 @@ const Challenges: React.FC = () => {
                   <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-neon-green/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 </Link>
               </motion.div>
+                );
+              })()
             ))}
           </AnimatePresence>
         </div>
