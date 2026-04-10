@@ -42,10 +42,15 @@ export const challengeService = {
   },
 
   /** Submit a flag for a challenge */
-  submitFlag: async (challengeId: string, flag: string): Promise<ApiResponse<SubmitFlagResponse>> => {
+  submitFlag: async (
+    challengeId: string,
+    flag: string,
+    sequence?: number
+  ): Promise<ApiResponse<SubmitFlagResponse>> => {
     const response = await api.post<ApiResponse<SubmitFlagResponse>>('/challenges/submit', {
       challengeId,
       flag,
+      sequence,
     });
     return response.data;
   },
