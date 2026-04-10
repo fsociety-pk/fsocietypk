@@ -1,0 +1,131 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Base Reset ───────────────────────────────────────────────── */
+
+@layer base {
+  *, *::before, *::after {
+    @apply box-border;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-background text-text-primary font-mono antialiased;
+    background-image:
+      linear-gradient(rgba(0, 255, 65, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 255, 65, 0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-attachment: fixed;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-background;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-surface-border rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-neon-green-dim;
+  }
+
+  /* Selection */
+  ::selection {
+    background: rgba(0, 255, 65, 0.2);
+    color: #00ff41;
+  }
+
+  /* Focus ring */
+  :focus-visible {
+    outline: 2px solid #00ff41;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* ── Component Layer ──────────────────────────────────────────── */
+@layer components {
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded font-mono text-sm font-medium transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply btn bg-neon-green text-background hover:shadow-neon hover:brightness-110 active:scale-95;
+  }
+  .btn-outline {
+    @apply btn border border-neon-green text-neon-green bg-transparent hover:bg-neon-green-muted hover:shadow-neon-sm active:scale-95;
+  }
+  .btn-ghost {
+    @apply btn text-text-secondary hover:text-text-primary hover:bg-surface active:scale-95;
+  }
+  .btn-danger {
+    @apply btn bg-status-error text-white hover:brightness-110 active:scale-95;
+  }
+
+  /* Cards */
+  .card {
+    @apply bg-background-card border border-surface-border rounded-lg shadow-card transition-all duration-200;
+  }
+  .card-hover {
+    @apply card hover:border-neon-green hover:shadow-neon-sm hover:-translate-y-0.5;
+  }
+
+  /* Inputs */
+  .input {
+    @apply w-full bg-background-elevated border border-surface-border rounded px-3 py-2 text-sm text-text-primary font-mono placeholder:text-text-muted transition-colors duration-200;
+    @apply focus:outline-none focus:border-neon-green focus:ring-1 focus:ring-neon-green;
+  }
+  .input-error {
+    @apply border-status-error focus:border-status-error focus:ring-status-error;
+  }
+
+  /* Badge / Tag */
+  .badge {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-medium;
+  }
+  .badge-easy    { @apply badge bg-difficulty-easy/10 text-difficulty-easy border border-difficulty-easy/30; }
+  .badge-medium  { @apply badge bg-difficulty-medium/10 text-difficulty-medium border border-difficulty-medium/30; }
+  .badge-hard    { @apply badge bg-difficulty-hard/10 text-difficulty-hard border border-difficulty-hard/30; }
+  .badge-insane  { @apply badge bg-difficulty-insane/10 text-difficulty-insane border border-difficulty-insane/30; }
+
+  /* Terminal-style block */
+  .terminal {
+    @apply bg-background-secondary border border-surface-border rounded-lg p-4 font-mono text-sm;
+  }
+  .terminal-prompt::before {
+    content: '$ ';
+    @apply text-neon-green;
+  }
+
+  /* Neon divider */
+  .divider-neon {
+    @apply border-t border-neon-green/20;
+  }
+
+  /* Glow text */
+  .text-glow {
+    text-shadow: 0 0 10px rgba(0, 255, 65, 0.6), 0 0 20px rgba(0, 255, 65, 0.3);
+  }
+}
+
+/* ── Utilities ────────────────────────────────────────────────── */
+@layer utilities {
+  .animate-delay-100 { animation-delay: 100ms; }
+  .animate-delay-200 { animation-delay: 200ms; }
+  .animate-delay-300 { animation-delay: 300ms; }
+  .animate-delay-500 { animation-delay: 500ms; }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}

@@ -1,0 +1,62 @@
+import api from './api';
+import { IChallenge, ApiResponse } from '../types';
+
+export interface SubmitFlagResponse {
+  correct: boolean;
+  points?: number;
+}
+
+export interface SubmitChallengePayload {
+  title: string;
+  description: string;
+  category: string;
+  difficulty: string;
+  flag: string;
+  hints?: string[];
+  attachments?: string[];
+}
+
+export interface SubmitChallengeResponse {
+  _id: string;
+  title: string;
+  status: string;
+  difficulty: string;
+  points: number;
+}
+
+export const challengeService = {
+  /** Get all approved active challenges */
+  getChallenges: async (): Promise<ApiResponse<IChallenge[]>> => {
+    const response = await api.get<ApiResponse<IChallenge[]>>('/challenges');
+    return response.data;
+  },
+
+  /** Get single challenge details (approved) */
+  getChallengeById: async (id: string): Promise<ApiResponse<IChallenge & { isSolved: boolean }>> => {
+    const response = await api.get<ApiResponse<IChallenge & { isSolved: boolean }>>(`/challenges/${id}`);
+    return response.data;
+  },
+
+  /** Submit a flag for a challenge */
+  submitFlag: async (challengeId: string, flag: string): Promise<ApiResponse<SubmitFlagResponse>> => {
+    const response = await api.post<ApiResponse<SubmitFlagResponse>>('/challenges/submit', {
+      challengeId,
+      flag,
+    });
+    return response.data;
+  },
+
+  /** Submit a new challenge for admin review */
+  createChallenge: async (
+    payload: SubmitChallengePayload
+  ): Promise<ApiResponse<SubmitChallengeResponse>> => {
+    const response = await api.post<ApiResponse<SubmitChallengeResponse>>('/challenges', payload);
+    return response.data;
+  },
+
+  /** Get the current user's submitted challenges (all statuses) */
+  getMySubmissions: async (): Promise<ApiResponse<IChallenge[]>> => {
+    const response = await api.get<ApiResponse<IChallenge[]>>('/challenges/my-submissions');
+    return response.data;
+  },
+};
