@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url'
 import path from 'path'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const devApiTarget = process.env.VITE_API_URL || 'http://16.171.55.64:5000'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -26,7 +27,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: devApiTarget,
         changeOrigin: true,
         secure: false,
       },

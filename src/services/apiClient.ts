@@ -1,10 +1,11 @@
 import axios from 'axios'
 import type { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
+import { API_BASE_URL, API_WITH_CREDENTIALS } from './apiConfig'
 
 // ── Base instance ─────────────────────────────────────────────────
 const apiClient: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? '/api/v1',
-  withCredentials: true,         // send HTTP-only cookies
+  baseURL: API_BASE_URL,
+  withCredentials: API_WITH_CREDENTIALS,
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json',

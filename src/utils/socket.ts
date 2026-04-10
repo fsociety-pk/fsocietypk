@@ -1,6 +1,7 @@
 import { io, Socket } from 'socket.io-client';
+import { API_URL, API_WITH_CREDENTIALS } from '../services/apiConfig';
 
-const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const SOCKET_URL = API_URL;
 
 class SocketService {
   private socket: Socket | null = null;
@@ -9,7 +10,7 @@ class SocketService {
     if (this.socket?.connected) return;
 
     this.socket = io(SOCKET_URL, {
-      withCredentials: true,
+      withCredentials: API_WITH_CREDENTIALS,
       transports: ['websocket', 'polling'],
     });
 
