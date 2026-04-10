@@ -1,8 +1,8 @@
-const DEFAULT_API_URL = 'http://16.171.55.64:5000';
+const DEFAULT_API_URL = '';
 const DEFAULT_API_PREFIX = '/api/v1';
 
 const normalizeBaseUrl = (url?: string): string => {
-  const value = (url || DEFAULT_API_URL).trim();
+  const value = (url ?? DEFAULT_API_URL).trim();
   return value.replace(/\/+$/, '');
 };
 
