@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { challengeService } from '../services/challenge.service';
+import { useAuthStore } from '../store/authStore';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const CATEGORIES = ['web', 'crypto', 'forensics', 'misc', 'pwn', 'rev'] as const;
@@ -68,6 +69,8 @@ const difficultyColors: Record<string, string> = {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 const SubmitChallenge: React.FC = () => {
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.role === 'admin';
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [errors, setErrors] = useState<Partial<Record<keyof FormState | 'form', string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -109,19 +112,30 @@ const SubmitChallenge: React.FC = () => {
     setErrors((prev) => ({ ...prev, flag: undefined }));
   };
 
-  const setMulFlag = (i: number, field: 'sequence' | 'value', val: string | number) => {
+  const setMulFlag = (i: number, val: string) => {
     const flags = [...form.flags];
-    flags[i] = { ...flags[i], [field]: field === 'sequence' ? Number(val) : val };
+    flags[i] = { ...flags[i], sequence: i + 1, value: val };
     setForm((prev) => ({ ...prev, flags }));
   };
 
   const addFlag = () => {
-    const nextSeq = Math.max(...form.flags.map(f => f.sequence), 0) + 1;
-    setForm((prev) => ({ ...prev, flags: [...prev.flags, { sequence: nextSeq, value: '' }] }));
+    setForm((prev) => ({
+      ...prev,
+      flags: [...prev.flags, { sequence: prev.flags.length + 1, value: '' }],
+    }));
   };
 
   const removeFlag = (i: number) => {
-    setForm((prev) => ({ ...prev, flags: prev.flags.filter((_, idx) => idx !== i) }));
+    setForm((prev) => {
+      const nextFlags = prev.flags
+        .filter((_, idx) => idx !== i)
+        .map((f, idx) => ({ ...f, sequence: idx + 1 }));
+
+      return {
+        ...prev,
+        flags: nextFlags.length > 0 ? nextFlags : [{ sequence: 1, value: '' }],
+      };
+    });
   };
 
   const toggleMultiFlag = () => {
@@ -138,11 +152,20 @@ const SubmitChallenge: React.FC = () => {
 
     if (form.isMultiFlag) {
       // Validate multiple flags
-      const validFlags = form.flags.filter(f => f.value.trim());
-      if (validFlags.length === 0) {
+      const normalizedFlags = form.flags.map((f, index) => ({
+        sequence: index + 1,
+        value: f.value.trim(),
+      }));
+
+      if (normalizedFlags.length === 0) {
         newErrors.flag = 'At least one flag is required';
       } else {
-        const invalidFlag = validFlags.find(f => !FLAG_REGEX.test(f.value.trim()));
+        const emptyFlag = normalizedFlags.find((f) => !f.value);
+        if (emptyFlag) {
+          newErrors.flag = `Flag ${emptyFlag.sequence} is empty. Fill it or remove it.`;
+        }
+
+        const invalidFlag = normalizedFlags.find((f) => f.value && !FLAG_REGEX.test(f.value));
         if (invalidFlag) {
           newErrors.flag = `Flag must follow format: fsociety{...} (Sequence ${invalidFlag.sequence})`;
         }
@@ -181,9 +204,10 @@ const SubmitChallenge: React.FC = () => {
 
       // Add flag(s) based on mode
       if (form.isMultiFlag) {
-        payload.flags = form.flags
-          .filter(f => f.value.trim())
-          .map(f => ({ sequence: f.sequence, value: f.value.trim() }));
+        payload.flags = form.flags.map((f, index) => ({
+          sequence: index + 1,
+          value: f.value.trim(),
+        }));
       } else {
         payload.flag = form.flag.trim();
       }
@@ -315,7 +339,11 @@ const SubmitChallenge: React.FC = () => {
             <Info className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
             <div className="text-xs text-blue-300 leading-relaxed">
               <p className="font-bold mb-1 uppercase tracking-widest">Review Process</p>
-              <p>Your challenge will be queued for admin review. Once approved, it will appear in the public missions list and players can solve it.</p>
+              <p>
+                {isAdmin
+                  ? 'As admin, your challenge will be published immediately after submission.'
+                  : 'Your challenge will be queued for admin review. Once approved, it will appear in the public missions list and players can solve it.'}
+              </p>
             </div>
           </div>
         </motion.div>
@@ -470,9 +498,9 @@ const SubmitChallenge: React.FC = () => {
                       <input
                         type="number"
                         min="1"
-                        value={flag.sequence}
-                        onChange={(e) => setMulFlag(i, 'sequence', e.target.value)}
-                        className="w-16 bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-2 text-sm focus:border-neon-green outline-none transition-all text-white"
+                        value={i + 1}
+                        readOnly
+                        className="w-16 bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-2 text-sm outline-none text-zinc-400"
                       />
                     </div>
                     <div className="flex-1">
@@ -482,7 +510,7 @@ const SubmitChallenge: React.FC = () => {
                       <input
                         type="text"
                         value={flag.value}
-                        onChange={(e) => setMulFlag(i, 'value', e.target.value)}
+                        onChange={(e) => setMulFlag(i, e.target.value)}
                         placeholder="fsociety{...}"
                         className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm focus:border-neon-green outline-none transition-all text-white placeholder-zinc-600"
                       />
@@ -635,13 +663,15 @@ const SubmitChallenge: React.FC = () => {
             ) : (
               <>
                 <Send className="w-5 h-5" />
-                SUBMIT FOR REVIEW
+                {isAdmin ? 'PUBLISH CHALLENGE' : 'SUBMIT FOR REVIEW'}
               </>
             )}
           </motion.button>
 
           <p className="text-center text-zinc-600 text-xs">
-            Your challenge will be reviewed by admin before appearing in the public mission list.
+            {isAdmin
+              ? 'Admin submissions are published immediately.'
+              : 'Your challenge will be reviewed by admin before appearing in the public mission list.'}
           </p>
         </form>
       </div>

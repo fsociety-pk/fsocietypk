@@ -4,6 +4,10 @@ import { IChallenge, ApiResponse } from '../types';
 export interface SubmitFlagResponse {
   correct: boolean;
   points?: number;
+  partial?: boolean;
+  completed?: boolean;
+  solvedSequence?: number;
+  nextSequence?: number;
 }
 
 export interface UnlockHintResponse {
@@ -44,13 +48,11 @@ export const challengeService = {
   /** Submit a flag for a challenge */
   submitFlag: async (
     challengeId: string,
-    flag: string,
-    sequence?: number
+    flag: string
   ): Promise<ApiResponse<SubmitFlagResponse>> => {
     const response = await api.post<ApiResponse<SubmitFlagResponse>>('/challenges/submit', {
       challengeId,
       flag,
-      sequence,
     });
     return response.data;
   },

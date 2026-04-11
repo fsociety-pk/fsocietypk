@@ -114,42 +114,49 @@ const ChallengeDetail: React.FC = () => {
 
     setSubmitting(true);
     try {
-      const response = await challengeService.submitFlag(id, enteredFlag, step);
-      if (response.data.correct) {
-        const isFinalStep = currentFlagStep >= totalFlagSteps;
-        const updatedSteps = completedFlagSteps.includes(currentFlagStep)
+      const response = await challengeService.submitFlag(id, enteredFlag);
+      const result = response.data;
+
+      if (result.correct) {
+        const updatedSteps = completedFlagSteps.includes(step)
           ? completedFlagSteps
-          : [...completedFlagSteps, currentFlagStep];
+          : [...completedFlagSteps, step];
 
         setCompletedFlagSteps(updatedSteps);
         setFlagValues((prev) => prev.map((value, index) => (index === step - 1 ? value.trim() : value)));
         saveFlagProgress(id, updatedSteps);
+
+        const isFinalStep = totalFlagSteps === 1 || result.completed === true || (!result.partial && step >= totalFlagSteps);
 
         if (isFinalStep) {
           setFlagFeedback({
             type: 'success',
             message: `ACCESS_GRANTED :: FLAG_${step}_VERIFIED :: MISSION_COMPLETE`,
           });
-          toast.success(`ACCESS GRANTED: ${response.data.points} PTS AWARDED`);
+          toast.success(`ACCESS GRANTED: ${result.points ?? 0} PTS AWARDED`);
           const allDone = Array.from({ length: totalFlagSteps }, (_, index) => index + 1);
           setCompletedFlagSteps(allDone);
           saveFlagProgress(id, allDone);
           setChallenge(prev => prev ? { ...prev, isSolved: true } : null);
         } else {
-          const nextStep = currentFlagStep + 1;
+          const nextStep = result.nextSequence ?? (step + 1);
           setFlagFeedback({
             type: 'success',
             message: `ACCESS_GRANTED :: FLAG_${step}_VERIFIED :: FLAG_${nextStep}_UNLOCKED`,
           });
           setCurrentFlagStep(nextStep);
-          toast.success(`FLAG ${currentFlagStep} VERIFIED. FLAG ${nextStep} UNLOCKED`);
+          toast.success(`FLAG ${step} VERIFIED. FLAG ${nextStep} UNLOCKED`);
         }
       } else {
+        const nextExpected = result.nextSequence ?? step;
+        if (nextExpected !== currentFlagStep) {
+          setCurrentFlagStep(nextExpected);
+        }
         setFlagFeedback({
           type: 'error',
-          message: `ACCESS_DENIED :: INVALID_FLAG_${step} :: RETRY_REQUIRED`,
+          message: `ACCESS_DENIED :: INVALID_FLAG_${nextExpected} :: RETRY_REQUIRED`,
         });
-        toast.error('INVALID FLAG: ACCESS DENIED');
+        toast.error(response.message || 'INVALID FLAG: ACCESS DENIED');
       }
     } catch (error: any) {
       setFlagFeedback({
