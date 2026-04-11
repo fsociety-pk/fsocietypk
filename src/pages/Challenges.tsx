@@ -210,7 +210,7 @@ const Challenges: React.FC = () => {
                   )}
 
                   {/* Top Bar */}
-                  <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center gap-3 mb-4 pr-16 relative z-10">
                     <span className="text-[10px] uppercase tracking-widest px-2 py-0.5 rounded border border-zinc-700 text-zinc-400">
                       {challenge.category}
                     </span>

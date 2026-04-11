@@ -359,9 +359,12 @@ const ChallengeDetail: React.FC = () => {
                 <span className="text-zinc-500 flex items-center gap-2"><Trophy className="w-4 h-4 text-yellow-500" /> MISSION_VALUE</span>
                 <span className="font-bold text-neon-green">{challenge.points} PTS</span>
               </div>
-              <div className="flex justify-between items-center text-sm border-b border-zinc-800 pb-4">
-                <span className="text-zinc-500 flex items-center gap-2"><CheckCircle2 className="w-4 h-4" /> SUCCESS_RATE</span>
-                <span className="font-bold tracking-widest">{challenge.solveCount} COMPLETED</span>
+              <div className="flex justify-between items-center text-sm border-b border-zinc-800 pb-4 gap-4">
+                <span className="text-zinc-500 flex items-center gap-2 shrink-0"><CheckCircle2 className="w-4 h-4" /> SUCCESS_RATE</span>
+                <span className="font-bold tracking-widest flex items-center gap-1.5 text-right whitespace-nowrap">
+                  <span className="text-base">{challenge.solveCount}</span>
+                  <span>COMPLETED</span>
+                </span>
               </div>
               <div className="flex justify-between items-center text-sm">
                 <span className="text-zinc-500 flex items-center gap-2"><HelpCircle className="w-4 h-4" /> DIFFICULTY</span>
