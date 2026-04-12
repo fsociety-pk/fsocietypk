@@ -1,8 +1,13 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
+import SideNavigation from './SideNavigation';
 
 const MainLayout: React.FC = () => {
+  const location = useLocation();
+  const hideSideNavigation = ['/login', '/signup'].includes(location.pathname) || location.pathname.startsWith('/admin');
+
   return (
     <div className="min-h-screen bg-black flex flex-col font-mono selection:bg-neon-green/30 selection:text-neon-green overflow-x-hidden">
       {/* ── Background Grid (Global Decor) ────────────────────────── */}
@@ -12,10 +17,14 @@ const MainLayout: React.FC = () => {
       <div className="fixed inset-0 pointer-events-none z-[9999] opacity-[0.03] bg-gradient-to-b from-transparent via-neon-green/10 to-transparent bg-[length:100%_4px] animate-scanline" />
 
       <Navbar />
-      
-      <main className="flex-grow z-10">
-        <Outlet />
-      </main>
+
+      <div className="flex-grow z-10 md:flex">
+        {!hideSideNavigation && <SideNavigation />}
+
+        <main className="flex-grow min-w-0">
+          <Outlet />
+        </main>
+      </div>
 
       {/* ── Footer ─────────────────────────────────────────────────── */}
       <footer className="py-6 border-t border-zinc-900 text-center text-[10px] text-zinc-600 tracking-[0.2em] font-mono z-10 bg-black">
