@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   Activity,
   ArrowUpRight,
@@ -8,10 +8,12 @@ import {
   Film,
   Flag,
   Lock,
+  Menu,
   Shield,
   Target,
   TrendingUp,
   Users2,
+  X,
   Zap,
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
@@ -44,41 +46,116 @@ const learningPath = [
   },
 ];
 
+const sidebarLinks = [
+  { to: '/challenges', label: 'Challenges', icon: Shield },
+  { to: '/leaderboard', label: 'Leaderboard', icon: TrendingUp },
+  { to: '/submit-challenge', label: 'Submit Challenge', icon: Flag },
+  { to: '/cyber-cinema', label: 'Cyber Cinema', icon: Film, highlight: true },
+];
+
 const Dashboard: React.FC = () => {
   const user = useAuthStore((state) => state.user);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-black px-4 py-8 text-white md:px-8">
+    <div className="relative min-h-screen overflow-hidden bg-black px-4 py-8 font-sans text-white md:px-8">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_20%,rgba(0,255,65,0.2),transparent_38%),radial-gradient(circle_at_86%_10%,rgba(56,189,248,0.15),transparent_32%),radial-gradient(circle_at_60%_90%,rgba(0,255,65,0.1),transparent_40%)]" />
+
+      {/* Mobile sidebar trigger */}
+      <div className="relative mx-auto mb-4 flex w-full max-w-7xl items-center justify-between md:hidden">
+        <p className="text-xs uppercase tracking-[0.24em] text-neon-green/80">Dashboard Panel</p>
+        <button
+          type="button"
+          onClick={() => setIsSidebarOpen((prev) => !prev)}
+          className="inline-flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-900/80 px-3 py-2 text-sm text-zinc-200"
+        >
+          {isSidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          Menu
+        </button>
+      </div>
+
+      {/* Mobile cinematic sidebar drawer */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-50 md:hidden"
+          >
+            <button
+              type="button"
+              onClick={() => setIsSidebarOpen(false)}
+              aria-label="Close menu"
+              className="absolute inset-0 h-full w-full bg-black/75 backdrop-blur-sm"
+            />
+
+            <motion.aside
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', stiffness: 280, damping: 30 }}
+              className="relative h-full w-[86%] max-w-sm border-r border-neon-green/25 bg-zinc-950/95 p-5 shadow-[0_0_40px_rgba(0,255,65,0.2)]"
+            >
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-white">Welcome, {user?.username || 'Operator'}</h2>
+                <button
+                  type="button"
+                  onClick={() => setIsSidebarOpen(false)}
+                  className="rounded-md border border-zinc-700 p-1.5 text-zinc-300"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="space-y-3">
+                {sidebarLinks.map((link) => (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    onClick={() => setIsSidebarOpen(false)}
+                    className={`flex items-center justify-between rounded-xl border px-4 py-3 text-sm transition-all ${
+                      link.highlight
+                        ? 'border-neon-green/40 bg-gradient-to-r from-neon-green/15 to-cyan-500/10 text-neon-green'
+                        : 'border-zinc-800 bg-zinc-900/80 text-zinc-200 hover:border-neon-green/50 hover:text-neon-green'
+                    }`}
+                  >
+                    <span className="flex items-center gap-2"><link.icon className="h-4 w-4" /> {link.label}</span>
+                    <ArrowUpRight className="h-4 w-4" />
+                  </Link>
+                ))}
+              </div>
+            </motion.aside>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="relative mx-auto grid w-full max-w-7xl gap-8 lg:grid-cols-[280px_1fr]">
         <motion.aside
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.45 }}
-          className="hidden h-fit rounded-2xl border border-neon-green/25 bg-zinc-950/80 p-5 backdrop-blur-xl lg:sticky lg:top-24 lg:block"
+          className="hidden h-fit rounded-2xl border border-neon-green/25 bg-zinc-950/80 p-5 backdrop-blur-xl md:sticky md:top-24 md:block"
         >
           <p className="text-[11px] uppercase tracking-[0.28em] text-neon-green/80">Control Panel</p>
           <h2 className="mt-2 text-xl font-bold tracking-wide text-white">Welcome, {user?.username || 'Operator'}</h2>
           <p className="mt-2 text-sm text-zinc-400">Clean, focused, and made for screenshots.</p>
 
           <div className="mt-6 space-y-3">
-            <Link to="/challenges" className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/80 px-4 py-3 text-sm text-zinc-200 transition-all hover:border-neon-green/50 hover:text-neon-green">
-              <span className="flex items-center gap-2"><Shield className="h-4 w-4" /> Challenges</span>
-              <ArrowUpRight className="h-4 w-4" />
-            </Link>
-            <Link to="/leaderboard" className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/80 px-4 py-3 text-sm text-zinc-200 transition-all hover:border-neon-green/50 hover:text-neon-green">
-              <span className="flex items-center gap-2"><TrendingUp className="h-4 w-4" /> Leaderboard</span>
-              <ArrowUpRight className="h-4 w-4" />
-            </Link>
-            <Link to="/submit-challenge" className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/80 px-4 py-3 text-sm text-zinc-200 transition-all hover:border-neon-green/50 hover:text-neon-green">
-              <span className="flex items-center gap-2"><Flag className="h-4 w-4" /> Submit Challenge</span>
-              <ArrowUpRight className="h-4 w-4" />
-            </Link>
-            <Link to="/cyber-cinema" className="flex items-center justify-between rounded-xl border border-neon-green/40 bg-gradient-to-r from-neon-green/15 to-cyan-500/10 px-4 py-3 text-sm text-neon-green transition-all hover:shadow-[0_0_24px_rgba(0,255,65,0.25)]">
-              <span className="flex items-center gap-2"><Film className="h-4 w-4" /> Cyber Cinema</span>
-              <ArrowUpRight className="h-4 w-4" />
-            </Link>
+            {sidebarLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`flex items-center justify-between rounded-xl border px-4 py-3 text-sm transition-all ${
+                  link.highlight
+                    ? 'border-neon-green/40 bg-gradient-to-r from-neon-green/15 to-cyan-500/10 text-neon-green hover:shadow-[0_0_24px_rgba(0,255,65,0.25)]'
+                    : 'border-zinc-800 bg-zinc-900/80 text-zinc-200 hover:border-neon-green/50 hover:text-neon-green'
+                }`}
+              >
+                <span className="flex items-center gap-2"><link.icon className="h-4 w-4" /> {link.label}</span>
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+            ))}
           </div>
 
           <div className="mt-6 rounded-xl border border-zinc-800 bg-zinc-900/70 p-4">
@@ -100,7 +177,7 @@ const Dashboard: React.FC = () => {
 
             <div className="relative">
               <p className="text-[11px] uppercase tracking-[0.28em] text-neon-green/80">FsocietyPK Dashboard</p>
-              <h1 className="mt-3 max-w-3xl text-3xl font-black tracking-tight text-white md:text-5xl">
+              <h1 className="mt-3 max-w-3xl font-display text-3xl font-bold tracking-tight text-white md:text-5xl">
                 Practical cybersecurity training, presented with a premium command-center look.
               </h1>
               <p className="mt-4 max-w-2xl text-sm leading-relaxed text-zinc-300 md:text-base">
@@ -138,7 +215,7 @@ const Dashboard: React.FC = () => {
 
           <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
             <div className="xl:col-span-2 rounded-2xl border border-zinc-800 bg-zinc-950/75 p-6">
-              <h3 className="text-lg font-bold text-neon-green">Session Blueprint</h3>
+              <h3 className="font-display text-lg font-semibold text-neon-green">Mission Roadmap</h3>
               <p className="mt-1 text-sm text-zinc-400">A simple structure you can follow every day.</p>
 
               <div className="mt-5 space-y-4">
