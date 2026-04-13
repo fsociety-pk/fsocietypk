@@ -12,7 +12,8 @@ import {
   EyeOff,
   AlertCircle,
   CheckCircle2,
-  Terminal
+  Terminal,
+  Camera
 } from 'lucide-react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { userService, ChangePasswordPayload } from '../services/userService';
@@ -61,6 +62,7 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'settings'>('overview');
   const [showCurrentPass, setShowCurrentPass] = useState(false);
   const [showNewPass, setShowNewPass] = useState(false);
+  const [localAvatar, setLocalAvatar] = useState<string | null>(null);
 
   const formatSafeDate = (value?: string) => {
     if (!value) {
@@ -76,6 +78,35 @@ const Profile = () => {
     queryFn: () => userService.getProfile(),
     select: (res) => res.data,
   });
+
+  // Sync saved avatar for demo purposes if backend doesn't support it yet
+  React.useEffect(() => {
+    if (profile?._id) {
+       const savedAvatar = localStorage.getItem(`avatar_${profile._id}`);
+       if (savedAvatar) setLocalAvatar(savedAvatar);
+    }
+  }, [profile]);
+
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('FILE_TOO_LARGE: Maximum size is 5MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result as string;
+      setLocalAvatar(result);
+      if (profile?._id) {
+        localStorage.setItem(`avatar_${profile._id}`, result);
+        toast.success('AVATAR_UPDATED_SUCCESSFULLY');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ChangePasswordPayload>();
 
@@ -108,16 +139,28 @@ const Profile = () => {
         </div>
         
         <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
-          <div className="relative group">
-            <div className="w-32 h-32 rounded-full border-2 border-neon-green p-1 bg-background relative overflow-hidden transition-transform group-hover:scale-105">
-              {profile?.avatar ? (
-                <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover rounded-full" />
+          <div className="relative group cursor-pointer">
+            <input 
+              type="file" 
+              accept="image/*" 
+              className="hidden" 
+              id="avatarUpdate" 
+              onChange={handleAvatarUpload} 
+            />
+            <label htmlFor="avatarUpdate" className="w-32 h-32 rounded-full border-2 border-neon-green p-1 bg-background relative overflow-hidden transition-transform group-hover:scale-105 cursor-pointer flex flex-col items-center justify-center group-hover:border-white">
+              {(localAvatar || profile?.avatar) ? (
+                <img src={localAvatar || profile?.avatar} alt="Avatar" className="w-full h-full object-cover rounded-full" />
               ) : (
                 <div className="w-full h-full bg-surface flex items-center justify-center text-4xl font-bold text-text-muted rounded-full">
                   {profile?.username?.[0]?.toUpperCase?.() || '?'}
                 </div>
               )}
-            </div>
+              
+              <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-full backdrop-blur-[2px]">
+                 <Camera className="text-neon-green w-8 h-8 mb-1" />
+                 <span className="text-[9px] font-bold tracking-widest text-white uppercase">Upload</span>
+              </div>
+            </label>
             <div className="absolute -bottom-2 -right-2 bg-neon-green text-background text-[10px] font-black italic px-3 py-1 rounded-full uppercase shadow-neon-sm">
               Level {Math.floor((profile?.score || 0) / 1000) + 1}
             </div>

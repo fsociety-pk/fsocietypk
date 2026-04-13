@@ -75,7 +75,7 @@ const Dashboard: React.FC = () => {
             <p className="text-xs md:text-sm uppercase tracking-[0.35em] text-neon-green/80 mb-4">
               CTF Command Center
             </p>
-            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black italic text-glow mb-4 tracking-tight drop-shadow-[0_0_15px_rgba(0,255,65,0.8)] break-words leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black italic text-glow mb-4 tracking-tight drop-shadow-[0_0_15px_rgba(0,255,65,0.8)] break-words leading-tight">
               TRAIN. BREAK. DEFEND.
             </h1>
             <p className="text-zinc-300 max-w-3xl leading-relaxed">
@@ -378,7 +378,7 @@ const Dashboard: React.FC = () => {
                     Flag Format
                   </h5>
                   <p className="text-sm text-zinc-400">
-                    Flags must follow the format: <code className="bg-black/50 px-2 py-1 rounded text-neon-green">fsociety{'{'}'...{'}'}</code>
+                    Flags must follow the format: <code className="bg-black/50 px-2 py-1 rounded text-neon-green">fsociety{'{}'}</code>
                   </p>
                 </div>
                 <div>
