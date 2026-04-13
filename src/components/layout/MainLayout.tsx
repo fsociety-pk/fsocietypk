@@ -37,13 +37,10 @@ const MainLayout: React.FC = () => {
 
       <div className="flex-grow z-10 flex">
         {!hideSideNavigation && (
-          <>
-            <div className="hidden lg:block w-72 shrink-0" aria-hidden="true" />
-            <SideNavigation
-              isMobileOpen={isMobileSidebarOpen}
-              onMobileClose={() => setIsMobileSidebarOpen(false)}
-            />
-          </>
+          <SideNavigation
+            isMobileOpen={isMobileSidebarOpen}
+            onMobileClose={() => setIsMobileSidebarOpen(false)}
+          />
         )}
 
         <main className="flex-grow min-w-0">
