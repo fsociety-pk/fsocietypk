@@ -6,37 +6,15 @@ import {
   Flag, 
   Settings, 
   ChevronLeft, 
-  ShieldAlert,
-  Menu,
-  X,
-  BarChart4,
-  Bell
+  BarChart4
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { clsx } from 'clsx';
-import { notificationService } from '../../services/notificationService';
 import companyLogo from '../../../images/logo.png';
 
 const AdminLayout: React.FC = () => {
   const { user } = useAuthStore();
   const location = useLocation();
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
-  const [unreadCount, setUnreadCount] = React.useState(0);
-
-  React.useEffect(() => {
-    const fetchUnreadCount = async () => {
-      try {
-        const count = await notificationService.getUnreadCount();
-        setUnreadCount(count);
-      } catch {
-        // Keep admin shell responsive even if notification endpoint fails.
-      }
-    };
-
-    fetchUnreadCount();
-    const interval = setInterval(fetchUnreadCount, 30000);
-    return () => clearInterval(interval);
-  }, []);
 
   // Final check: only admins should ever see this layout
   if (user?.role !== 'admin') {
