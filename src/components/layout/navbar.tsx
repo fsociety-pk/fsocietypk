@@ -4,7 +4,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Terminal, Shield, Trophy, User, LogOut, Menu, X, Bell, Folder } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { authService } from '../../services/auth.service';
-import { notificationService } from '../../services/notificationService';
+import {
+  NOTIFICATION_UNREAD_COUNT_UPDATED,
+  notificationService,
+} from '../../services/notificationService';
 import { toast } from 'react-hot-toast';
 import companyLogo from '../../../images/logo.png';
 
@@ -17,21 +20,36 @@ const Navbar: React.FC = () => {
 
   // Fetch unread notification count
   useEffect(() => {
-    if (isAuthenticated) {
-      const fetchUnreadCount = async () => {
-        try {
-          const count = await notificationService.getUnreadCount();
-          setUnreadCount(count);
-        } catch (error) {
-          // Silently fail
-        }
-      };
-
-      fetchUnreadCount();
-      // Poll for new notifications every 30 seconds
-      const interval = setInterval(fetchUnreadCount, 30000);
-      return () => clearInterval(interval);
+    if (!isAuthenticated) {
+      setUnreadCount(0);
+      return;
     }
+
+    const fetchUnreadCount = async () => {
+      try {
+        const count = await notificationService.getUnreadCount();
+        setUnreadCount(count);
+      } catch (error) {
+        // Silently fail
+      }
+    };
+
+    const handleUnreadCountUpdated = (
+      event: Event
+    ) => {
+      const customEvent = event as CustomEvent<{ count: number }>;
+      setUnreadCount(Number(customEvent.detail?.count ?? 0));
+    };
+
+    fetchUnreadCount();
+    // Poll for new notifications every 30 seconds
+    const interval = setInterval(fetchUnreadCount, 30000);
+    window.addEventListener(NOTIFICATION_UNREAD_COUNT_UPDATED, handleUnreadCountUpdated);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener(NOTIFICATION_UNREAD_COUNT_UPDATED, handleUnreadCountUpdated);
+    };
   }, [isAuthenticated]);
 
   const handleLogout = async () => {
