@@ -4,7 +4,7 @@ import { ApiResponse, IUser, ISubmission } from '../types';
 export interface UserProfile extends IUser {
   rank: number;
   grade?: string;
-  solveHistory: ISubmission[];
+  solveHistory: any[];
 }
 
 export interface ChangePasswordPayload {

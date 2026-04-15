@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Trophy,
@@ -92,14 +92,18 @@ const PublicProfile = () => {
     queryFn: () => userService.getPublicProfile(username!),
     select: (res) => res.data,
     enabled: !!username,
-    onError: (error: any) => {
-      if (error.response?.status === 403) {
+  });
+
+  useEffect(() => {
+    if (error) {
+      const axiosError = error as any;
+      if (axiosError.response?.status === 403) {
         toast.error("This user's profile is private");
-      } else if (error.response?.status === 404) {
+      } else if (axiosError.response?.status === 404) {
         toast.error('User not found');
       }
-    },
-  });
+    }
+  }, [error]);
 
   if (isLoading) {
     return (
