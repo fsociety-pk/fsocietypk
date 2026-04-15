@@ -115,33 +115,33 @@ const Notifications: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black font-mono text-white py-12 px-4 md:px-8">
+    <div className="min-h-screen bg-black font-mono text-white py-6 sm:py-8 md:py-10 lg:py-12 px-4 sm:px-6 md:px-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-6 sm:mb-8"
         >
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-lg bg-neon-green/10 border border-neon-green/30 flex items-center justify-center">
-              <Bell className="w-5 h-5 text-neon-green" />
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <div className="w-8 sm:w-10 h-8 sm:h-10 rounded-lg bg-neon-green/10 border border-neon-green/30 flex items-center justify-center">
+              <Bell className="w-4 sm:w-5 h-4 sm:h-5 text-neon-green" />
             </div>
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-neon-green tracking-widest uppercase">
+              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-neon-green tracking-widest uppercase">
                 Notifications
               </h1>
-              <p className="text-zinc-500 text-xs mt-1">&gt; Receive updates about your challenges</p>
+              <p className="text-zinc-500 text-[9px] sm:text-xs mt-0.5 sm:mt-1">&gt; Receive updates about your challenges</p>
             </div>
           </div>
 
           {/* Filters */}
-          <div className="flex flex-wrap items-center gap-2 mb-6">
+          <div className="flex flex-wrap items-center gap-1 sm:gap-2 mb-4 sm:mb-6">
             {(['all', 'unread', 'read'] as const).map(f => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-3 py-1.5 rounded text-xs font-bold uppercase tracking-widest transition-all ${
+                className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded text-[8px] sm:text-xs font-bold uppercase tracking-widest transition-all ${
                   filter === f
                     ? 'bg-neon-green text-black'
                     : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:border-neon-green/50'
@@ -154,19 +154,19 @@ const Notifications: React.FC = () => {
 
           {/* Actions */}
           {notifications.length > 0 && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1 sm:gap-2">
               <button
                 onClick={handleMarkAllAsRead}
-                className="flex items-center gap-2 px-3 py-2 bg-blue-600/20 border border-blue-500/50 rounded text-xs font-bold text-blue-400 hover:bg-blue-600/30 transition-all"
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-2 bg-blue-600/20 border border-blue-500/50 rounded text-[8px] sm:text-xs font-bold text-blue-400 hover:bg-blue-600/30 transition-all"
               >
-                <CheckCheck className="w-4 h-4" />
+                <CheckCheck className="w-3 sm:w-4 h-3 sm:h-4" />
                 MARK ALL READ
               </button>
               <button
                 onClick={handleClearAll}
-                className="flex items-center gap-2 px-3 py-2 bg-red-600/20 border border-red-500/50 rounded text-xs font-bold text-red-400 hover:bg-red-600/30 transition-all"
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-2 bg-red-600/20 border border-red-500/50 rounded text-[8px] sm:text-xs font-bold text-red-400 hover:bg-red-600/30 transition-all"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-3 sm:w-4 h-3 sm:h-4" />
                 CLEAR ALL
               </button>
             </div>

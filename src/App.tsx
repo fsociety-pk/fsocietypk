@@ -16,6 +16,7 @@ import Signup from './pages/Signup';import Dashboard from './pages/Dashboard';im
 import ChallengeDetail from './pages/ChallengeDetail';
 import Leaderboard from './pages/Leaderboard';
 import Profile from './pages/Profile';
+import PublicProfile from './pages/PublicProfile';
 import Notifications from './pages/Notifications';
 import AdminDashboard from './pages/admin/Dashboard';
 import ManageChallenges from './pages/admin/ManageChallenges';
@@ -119,7 +120,7 @@ function App() {
           <Route path="/challenges/:id" element={<ProtectedRoute><ChallengeDetail /></ProtectedRoute>} />
           <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/profile/:username" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/profile/:username" element={<ProtectedRoute><PublicProfile /></ProtectedRoute>} />
           <Route path="/submit-challenge" element={<ProtectedRoute><SubmitChallenge /></ProtectedRoute>} />
           <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
 

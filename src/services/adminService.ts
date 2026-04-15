@@ -60,6 +60,16 @@ export const adminService = {
     return data;
   },
 
+  updateChallengeLiveStatus: async (
+    id: string,
+    liveStatus: string,
+  ): Promise<ApiResponse<IChallenge>> => {
+    const { data } = await apiClient.patch(`/admin/challenges/${id}/live-status`, {
+      liveStatus,
+    });
+    return data;
+  },
+
   getAnalytics: async (): Promise<ApiResponse<IAnalyticsData>> => {
     const { data } = await apiClient.get('/admin/analytics');
     return data;

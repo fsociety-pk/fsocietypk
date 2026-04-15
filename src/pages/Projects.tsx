@@ -15,14 +15,14 @@ const Projects: React.FC = () => {
   }, []);
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-black px-4 py-10 text-white md:px-8">
+    <div className="relative min-h-screen overflow-hidden bg-black px-4 py-6 sm:py-8 md:py-10 sm:px-6 md:px-8 text-white">
       {/* Background Decor */}
       <div className="fixed inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(0,255,65,0.2)_1.5px,transparent_1.5px),linear-gradient(90deg,rgba(0,255,65,0.2)_1.5px,transparent_1.5px)] bg-[size:30px_30px]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(0,255,65,0.1),transparent_34%),radial-gradient(circle_at_75%_5%,rgba(0,255,65,0.1),transparent_28%)]" />
       
       <div className="relative mx-auto max-w-6xl z-10">
-        <div className="mb-12 border-l-4 border-neon-green pl-6">
-          <h1 className="text-4xl font-black uppercase tracking-widest text-white md:text-5xl">
+        <div className="mb-8 sm:mb-10 md:mb-12 border-l-4 border-neon-green pl-4 sm:pl-6">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-widest text-white">
             OUR <span className="text-neon-green">PROJECTS</span>
           </h1>
           <p className="mt-4 max-w-2xl font-mono text-sm leading-relaxed text-zinc-400">
@@ -39,7 +39,7 @@ const Projects: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group relative flex flex-col justify-between rounded-xl border border-zinc-800 bg-zinc-900/50 p-8 backdrop-blur-sm transition-all hover:border-neon-green/40 hover:bg-zinc-900/80 hover:shadow-[0_0_30px_rgba(0,255,65,0.1)]"
+              className="group relative flex flex-col justify-between rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 sm:p-6 md:p-8 backdrop-blur-sm transition-all hover:border-neon-green/40 hover:bg-zinc-900/80 hover:shadow-[0_0_30px_rgba(0,255,65,0.1)]"
             >
               {/* Card Decoration */}
               <div className="absolute right-4 top-4 text-zinc-800 transition-colors group-hover:text-neon-green/20">

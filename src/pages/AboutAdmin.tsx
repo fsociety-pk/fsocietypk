@@ -127,7 +127,7 @@ const AboutAdmin: React.FC = () => {
               {/* Info */}
               <div className="flex-1 space-y-6 md:pt-16">
                 <div>
-                  <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter text-white uppercase text-glow">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black italic tracking-tighter text-white uppercase text-glow">
                     {profile.name}
                   </h1>
                   <div className="flex items-center gap-2 mt-2">

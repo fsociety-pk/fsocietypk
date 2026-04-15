@@ -13,6 +13,18 @@ export interface ChangePasswordPayload {
   confirmPassword: string;
 }
 
+export interface UpdateProfilePayload {
+  avatar?: string;
+  bio?: string;
+  country?: string;
+  socialLinks?: {
+    linkedin?: string;
+    github?: string;
+    instagram?: string;
+  };
+  isProfilePublic?: boolean;
+}
+
 // ── User API service ──────────────────────────────────────────────
 export const userService = {
   getProfile: async (): Promise<ApiResponse<UserProfile>> => {
@@ -20,8 +32,20 @@ export const userService = {
     return data;
   },
 
+  getPublicProfile: async (username: string): Promise<ApiResponse<UserProfile>> => {
+    const { data } = await apiClient.get(`/users/${username}/profile`);
+    return data;
+  },
+
+  updateProfile: async (payload: UpdateProfilePayload): Promise<ApiResponse<UserProfile>> => {
+    const { data } = await apiClient.put('/users/me/profile', payload);
+    return data;
+  },
+
   changePassword: async (payload: ChangePasswordPayload): Promise<ApiResponse<null>> => {
-    const { data } = await apiClient.post('/users/me/change-password', payload);
+    // Don't send confirmPassword to backend
+    const { confirmPassword, ...rest } = payload;
+    const { data } = await apiClient.post('/users/me/change-password', rest);
     return data;
   },
 };

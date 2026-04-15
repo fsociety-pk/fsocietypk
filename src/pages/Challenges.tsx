@@ -95,47 +95,49 @@ const Challenges: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white font-mono p-4 md:p-8">
+    <div className="min-h-screen bg-black text-white font-mono p-4 sm:p-6 md:p-8">
       {/* ── Header ────────────────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto mb-10">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div>
-            <h1 className="text-4xl font-display font-bold text-neon-green flex items-center gap-3">
-              <Terminal className="w-10 h-10" />
+      <div className="max-w-7xl mx-auto mb-6 sm:mb-8 md:mb-10">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 sm:gap-6">
+          <div className="space-y-1">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-display font-bold text-neon-green flex items-center gap-2 sm:gap-3 leading-tight">
+              <Terminal className="w-8 sm:w-10 h-8 sm:h-10" />
               MISSIONS
             </h1>
-            <p className="text-zinc-500 mt-2">&gt; SELECT YOUR TARGET</p>
+            <p className="text-[10px] sm:text-xs text-zinc-500 font-mono tracking-widest">&gt; SELECT_TARGET_AND_EXPLOIT</p>
           </div>
           
-          <div className="flex flex-wrap gap-4 w-full md:w-auto">
-            <div className="relative flex-grow md:flex-grow-0">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 w-4 h-4" />
+          <div className="flex flex-col sm:flex-row items-stretch gap-3 w-full md:w-auto">
+            <div className="relative flex-grow min-w-0 sm:min-w-[240px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 w-3.5 h-3.5 transition-colors group-focus-within:text-neon-green" />
               <input
                 type="text"
-                placeholder="PROBE TITLE..."
+                placeholder="PROBE_TITLE..."
                 value={filter.search}
                 onChange={(e) => setFilter({ ...filter, search: e.target.value })}
-                className="bg-zinc-900 border border-zinc-800 rounded-lg pl-10 pr-4 py-2 text-sm focus:border-neon-green outline-none w-full transition-all"
+                className="bg-black/40 border border-zinc-800 rounded-lg pl-9 pr-4 py-2.5 text-[11px] font-mono focus:border-neon-green/50 outline-none w-full transition-all focus:bg-zinc-900 placeholder:text-zinc-700"
               />
             </div>
             
-            <select
-              value={filter.category}
-              onChange={(e) => setFilter({ ...filter, category: e.target.value as any })}
-              className="bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 text-sm focus:border-neon-green outline-none transition-all cursor-pointer"
-            >
-              <option value="all">ALL CATEGORIES</option>
-              {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat.toUpperCase()}</option>)}
-            </select>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <select
+                value={filter.category}
+                onChange={(e) => setFilter({ ...filter, category: e.target.value as any })}
+                className="bg-black/40 border border-zinc-800 rounded-lg px-3 py-2.5 text-[10px] font-mono focus:border-neon-green/50 outline-none transition-all cursor-pointer flex-1 sm:w-36"
+              >
+                <option value="all">CATEGORIES</option>
+                {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat.toUpperCase()}</option>)}
+              </select>
 
-            <select
-              value={filter.difficulty}
-              onChange={(e) => setFilter({ ...filter, difficulty: e.target.value as any })}
-              className="bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 text-sm focus:border-neon-green outline-none transition-all cursor-pointer"
-            >
-              <option value="all">ALL DIFFICULTIES</option>
-              {DIFFICULTIES.map(diff => <option key={diff} value={diff}>{diff.toUpperCase()}</option>)}
-            </select>
+              <select
+                value={filter.difficulty}
+                onChange={(e) => setFilter({ ...filter, difficulty: e.target.value as any })}
+                className="bg-black/40 border border-zinc-800 rounded-lg px-3 py-2.5 text-[10px] font-mono focus:border-neon-green/50 outline-none transition-all cursor-pointer flex-1 sm:w-36"
+              >
+                <option value="all">DIFFICULTIES</option>
+                {DIFFICULTIES.map(diff => <option key={diff} value={diff}>{diff.toUpperCase()}</option>)}
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -172,71 +174,69 @@ const Challenges: React.FC = () => {
                     isSolvedUI ? 'border-neon-green/30' : 'border-zinc-800 hover:border-neon-green/50'
                   }`}
                 >
-                  {/* Solve Status Icon (single-flag) */}
-                  {totalFlagSteps <= 1 && isSolvedUI && (
-                    <div className="absolute top-4 right-4 text-neon-green">
-                      <CheckCircle2 className="w-6 h-6" />
-                    </div>
-                  )}
-
-                  {/* Multi-flag Progress */}
-                  {totalFlagSteps > 1 && (
-                    <div className="absolute top-4 right-4 flex items-center gap-2">
-                      <div className="relative w-8 h-8">
-                        <svg className="w-8 h-8 -rotate-90" viewBox="0 0 32 32">
-                          <circle
-                            cx="16"
-                            cy="16"
-                            r={radius}
-                            fill="none"
-                            stroke="rgba(63, 63, 70, 0.8)"
-                            strokeWidth="3"
-                          />
-                          <circle
-                            cx="16"
-                            cy="16"
-                            r={radius}
-                            fill="none"
-                            stroke="rgba(0, 255, 65, 0.95)"
-                            strokeWidth="3"
-                            strokeDasharray={circumference}
-                            strokeDashoffset={dashOffset}
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                        <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-neon-green">
-                          {progressPercent}%
-                        </span>
+                  {/* Status Badge Group */}
+                  <div className="absolute top-0 left-0 flex items-center">
+                    {challenge.liveStatus === 'live' && (
+                      <div className="px-3 py-1 bg-neon-green text-black text-[9px] font-black tracking-widest flex items-center gap-1.5 shadow-[0_0_15px_rgba(0,255,65,0.3)]">
+                        <span className="w-1.5 h-1.5 bg-black rounded-full animate-pulse"></span>
+                        LIVE
                       </div>
-                      <span className="text-[10px] uppercase tracking-widest text-zinc-400">
-                        {completedSteps}/{totalFlagSteps}
-                      </span>
+                    )}
+                    {challenge.liveStatus === 'ended' && (
+                      <div className="px-3 py-1 bg-zinc-800 text-zinc-400 text-[9px] font-black tracking-widest flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 bg-zinc-500 rounded-full"></span>
+                        OFFLINE
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Multi-flag Progress Progress Bar Overlay */}
+                  {totalFlagSteps > 1 && (
+                    <div className="absolute top-0 right-0 h-1 bg-zinc-800/50 w-full overflow-hidden">
+                       <motion.div 
+                         initial={{ width: 0 }}
+                         animate={{ width: `${progressPercent}%` }}
+                         className="h-full bg-neon-green shadow-neon"
+                       />
                     </div>
                   )}
 
-                  {/* Top Bar */}
-                  <div className="flex items-center gap-3 mb-4 pr-16 relative z-10">
-                    <span className="text-[10px] uppercase tracking-widest px-2 py-0.5 rounded border border-zinc-700 text-zinc-400">
-                      {challenge.category}
-                    </span>
-                    <span className={`text-[10px] uppercase tracking-widest px-2 py-0.5 rounded border ${getDifficultyColor(challenge.difficulty)}`}>
-                      {challenge.difficulty}
-                    </span>
+                  {/* Top Bar (Meta tags) */}
+                  <div className="flex items-center justify-between mb-5 mt-6 sm:mt-8">
+                     <div className="flex items-center gap-2">
+                        <span className="text-[9px] font-black uppercase tracking-[0.15em] px-2 py-1 rounded bg-zinc-800/50 text-zinc-300 border border-zinc-700/50">
+                          {challenge.category}
+                        </span>
+                        <span className={`text-[9px] font-black uppercase tracking-[0.15em] px-2 py-1 rounded border ${getDifficultyColor(challenge.difficulty)} bg-black/20`}>
+                          {challenge.difficulty}
+                        </span>
+                     </div>
+                     
+                     {totalFlagSteps > 1 ? (
+                        <div className="flex items-center gap-2">
+                           <span className="text-[9px] font-mono font-bold text-neon-green tracking-tighter">{progressPercent}%</span>
+                           <span className="text-[9px] font-mono text-zinc-600">[{completedSteps}/{totalFlagSteps}]</span>
+                        </div>
+                     ) : (
+                        isSolvedUI && <CheckCircle2 className="w-4 h-4 text-neon-green" />
+                     )}
                   </div>
 
                   {/* Content */}
-                  <h3 className="text-xl font-bold mb-2 group-hover:text-neon-green transition-colors">
-                    {challenge.title}
-                  </h3>
-                  
-                  <div className="flex items-center gap-4 text-sm text-zinc-500">
-                    <div className="flex items-center gap-1.5">
-                      <Trophy className="w-4 h-4 text-yellow-500/70" />
-                      <span>{challenge.points} PTS</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>{completedSteps}/{totalFlagSteps} COMPLETED</span>
+                  <div className="space-y-3">
+                    <h3 className="text-xl font-bold group-hover:text-neon-green transition-colors leading-tight">
+                      {challenge.title}
+                    </h3>
+                    
+                    <div className="flex items-center gap-6 text-[10px] font-mono text-zinc-500 font-bold uppercase tracking-wider">
+                      <div className="flex items-center gap-1.5 group-hover:text-white transition-colors">
+                        <Trophy className="w-3.5 h-3.5 text-yellow-500/70" />
+                        <span>{challenge.points} XP_UNITS</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 group-hover:text-white transition-colors">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>{completedSteps}/{totalFlagSteps} CLEARED</span>
+                      </div>
                     </div>
                   </div>
 

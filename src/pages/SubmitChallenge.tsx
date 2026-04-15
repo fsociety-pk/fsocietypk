@@ -277,14 +277,14 @@ const SubmitChallenge: React.FC = () => {
             </span>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-8">
-            <div className="p-3 bg-zinc-900 rounded-lg border border-zinc-800">
-              <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-1">Points</p>
-              <p className="text-xl font-bold text-yellow-400">{submitted.points}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
+            <div className="p-2 sm:p-3 bg-zinc-900 rounded-lg border border-zinc-800">
+              <p className="text-[8px] sm:text-[10px] text-zinc-500 uppercase tracking-widest mb-1">Points</p>
+              <p className="text-lg sm:text-xl font-bold text-yellow-400">{submitted.points}</p>
             </div>
-            <div className="p-3 bg-zinc-900 rounded-lg border border-zinc-800">
-              <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-1">Status</p>
-              <p className={`text-xl font-bold ${submitted.status === 'approved' ? 'text-emerald-400' : 'text-orange-400'}`}>
+            <div className="p-2 sm:p-3 bg-zinc-900 rounded-lg border border-zinc-800">
+              <p className="text-[8px] sm:text-[10px] text-zinc-500 uppercase tracking-widest mb-1">Status</p>
+              <p className={`text-lg sm:text-xl font-bold ${submitted.status === 'approved' ? 'text-emerald-400' : 'text-orange-400'}`}>
                 {submitted.status === 'approved' ? 'Approved' : 'Pending'}
               </p>
             </div>

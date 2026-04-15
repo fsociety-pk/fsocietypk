@@ -205,11 +205,11 @@ const ChallengeDetail: React.FC = () => {
   if (!challenge) return null;
 
   return (
-    <div className="min-h-screen bg-black text-white font-mono p-4 md:p-8">
+    <div className="min-h-screen bg-black text-white font-mono p-4 sm:p-6 md:p-8">
       {roastError && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 backdrop-blur-sm">
-          <div className="border-2 border-red-500 bg-zinc-950 p-8 rounded-2xl max-w-2xl text-center shadow-[0_0_50px_rgba(239,68,68,0.3)]">
-            <h2 className="text-4xl md:text-5xl font-black text-red-500 mb-6 uppercase tracking-widest break-words leading-tight">
+          <div className="border-2 border-red-500 bg-zinc-950 p-6 sm:p-8 rounded-2xl max-w-2xl text-center shadow-[0_0_50px_rgba(239,68,68,0.3)]">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-red-500 mb-4 sm:mb-6 uppercase tracking-widest break-words leading-tight">
               🚨 NICE TRY, SKID 🚨
             </h2>
             <p className="text-xl md:text-2xl text-zinc-300 mb-4 font-bold">
@@ -253,7 +253,7 @@ const ChallengeDetail: React.FC = () => {
                   MISSION_ID: #{challenge._id.slice(-6)}
                 </span>
               </div>
-              <h1 className="text-4xl font-bold mb-4 tracking-tight">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">
                 {challenge.title}
               </h1>
               

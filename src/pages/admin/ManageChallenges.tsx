@@ -1,16 +1,18 @@
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminService } from '../../services/adminService';
-import { 
-  CheckCircle, 
-  XCircle, 
-  Trash2, 
-  ExternalLink, 
+import {
+  CheckCircle,
+  XCircle,
+  Trash2,
+  ExternalLink,
   Calendar,
   User as UserIcon,
   Tag,
   AlertCircle,
-  Clock
+  Clock,
+  Radio,
+  ToggleRight
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { format } from 'date-fns';
@@ -47,6 +49,18 @@ const ManageChallenges: React.FC = () => {
     if (reason === null) return; // Cancelled
     statusMutation.mutate({ id, status: 'rejected', reason: reason || 'Does not meet platform standards' });
   };
+
+  const liveStatusMutation = useMutation({
+    mutationFn: ({ id, liveStatus }: { id: string; liveStatus: string }) =>
+      adminService.updateChallengeLiveStatus(id, liveStatus),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-challenges'] });
+      toast.success(`Challenge is now ${res.data.liveStatus}`);
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Update failed');
+    },
+  });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => adminService.deleteChallenge(id),
@@ -144,7 +158,7 @@ const ManageChallenges: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 border-t lg:border-t-0 pt-4 lg:pt-0 border-surface-border">
+              <div className="flex items-center gap-3 border-t lg:border-t-0 pt-4 lg:pt-0 border-surface-border flex-wrap">
                 {mission.status !== 'approved' && (
                   <button 
                     onClick={() => statusMutation.mutate({ id: mission._id, status: 'approved' })}
@@ -170,6 +184,27 @@ const ManageChallenges: React.FC = () => {
                     Awaiting another admin
                   </span>
                 )}
+                
+                {/* Live Status Toggle */}
+                {mission.status === 'approved' && (
+                  <button
+                    onClick={() => liveStatusMutation.mutate({
+                      id: mission._id,
+                      liveStatus: mission.liveStatus === 'live' ? 'ended' : 'live'
+                    })}
+                    disabled={liveStatusMutation.isPending}
+                    className={clsx(
+                      "btn px-4 py-2 text-[10px] font-black flex items-center gap-2",
+                      mission.liveStatus === 'live'
+                        ? "bg-neon-green/10 text-neon-green hover:bg-neon-green/20 border-neon-green/30"
+                        : "bg-red-500/10 text-red-500 hover:bg-red-500/20 border-red-500/30"
+                    )}
+                  >
+                    {mission.liveStatus === 'live' ? <Radio size={14} /> : <ToggleRight size={14} />} 
+                    {mission.liveStatus === 'live' ? 'LIVE' : 'ENDED'}
+                  </button>
+                )}
+
                 <button 
                   onClick={() => deleteMutation.mutate(mission._id)}
                   disabled={deleteMutation.isPending}

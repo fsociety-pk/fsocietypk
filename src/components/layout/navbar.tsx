@@ -83,62 +83,81 @@ const Navbar: React.FC = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="bg-black border-b border-neon-green/20 sticky top-0 z-50 backdrop-blur-md bg-opacity-80">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-12">
-        <div className="flex items-center justify-between h-16">
+    <nav className="bg-black/90 border-b border-neon-green/20 sticky top-0 z-50 backdrop-blur-xl group/nav">
+      {/* Dynamic Scanline Effect */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_50%,rgba(0,255,65,0.05)_50%)] bg-[length:100%_4px] animate-scan-line" />
+      </div>
+
+      <div className="max-w-[1700px] mx-auto px-4 sm:px-6 xl:px-8 2xl:px-12 relative z-10">
+        <div className="flex items-center justify-between h-20 gap-2 sm:gap-4 md:gap-8 lg:gap-12 xl:gap-4">
           {/* Logo Section */}
-          <div className="flex items-center gap-16">
-            <Link to="/" className="flex items-center gap-4 group">
-              <div className="w-10 h-10 bg-neon-green/10 rounded-full border border-neon-green/30 flex items-center justify-center group-hover:bg-neon-green/20 transition-all overflow-hidden shadow-neon-sm">
-                <img src={companyLogo} alt="FsocietyPK logo" className="w-8 h-8 object-contain rounded-full" />
+          <div className="flex items-center gap-8 lg:gap-12 min-w-0">
+            <Link to="/" className="flex items-center gap-3 group/logo flex-shrink-0">
+              <div className="relative w-10 h-10 bg-neon-green/5 rounded-full border border-neon-green/30 flex items-center justify-center group-hover/logo:bg-neon-green/10 transition-all duration-500 overflow-hidden shadow-[0_0_15px_rgba(0,255,65,0.1)] group-hover/logo:shadow-[0_0_25px_rgba(0,255,65,0.3)]">
+                <img src={companyLogo} alt="FsocietyPK logo" className="w-8 h-8 object-contain rounded-full transition-transform duration-500 group-hover/logo:scale-110" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-neon-green/20 to-transparent opacity-0 group-hover/logo:opacity-100 transition-opacity" />
               </div>
-              <span className="text-xl md:text-2xl font-display font-bold text-white tracking-[0.2em] hidden sm:block">
-                FSOCIETY<span className="text-neon-green text-glow">PK</span>
+              <span className="text-lg xl:text-xl font-display font-bold text-white tracking-[0.1em] xl:tracking-[0.25em] hidden sm:block">
+                FSOCIETY<span className="text-neon-green text-glow animate-pulse">PK</span>
               </span>
             </Link>
 
             {/* Desktop Nav Links */}
-            <div className="hidden md:flex items-center gap-8">
+            <div className="hidden xl:flex items-center gap-1 xl:gap-2 h-full">
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
                   to={link.path}
-                  className={`flex items-center gap-2.5 px-1 py-1.5 text-[10px] font-mono font-bold tracking-[0.2em] transition-all hover:text-neon-green group/link ${
-                    isActive(link.path) ? 'text-neon-green border-b-2 border-neon-green' : 'text-zinc-500'
+                  className={`relative flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-2 text-[10px] xl:text-[11px] font-mono font-bold tracking-[0.05em] xl:tracking-[0.15em] transition-all duration-300 group/link whitespace-nowrap overflow-hidden ${
+                    isActive(link.path) ? 'text-neon-green' : 'text-zinc-500 hover:text-zinc-200'
                   }`}
                 >
-                  <link.icon className={`w-3.5 h-3.5 ${isActive(link.path) ? 'text-neon-green' : 'text-zinc-600 group-hover/link:text-neon-green'}`} />
-                  {link.name}
+                  <link.icon className={`w-3.5 h-3.5 flex-shrink-0 transition-colors duration-300 ${isActive(link.path) ? 'text-neon-green' : 'text-zinc-600 group-hover/link:text-neon-green'}`} />
+                  <span className="relative z-10 uppercase">{link.name}</span>
+                  
+                  {/* Hover/Active Underline */}
+                  <motion.div 
+                    className={`absolute bottom-0 left-0 h-[2px] bg-neon-green shadow-neon-sm transition-all duration-300 ${isActive(link.path) ? 'w-full' : 'w-0 group-hover/link:w-full'}`}
+                  />
+                  
+                  {/* Subtle Background Glow on Hover */}
+                  <div className="absolute inset-0 bg-neon-green/5 opacity-0 group-hover/link:opacity-100 transition-opacity duration-300 -z-1" />
                 </Link>
               ))}
             </div>
           </div>
 
           {/* User Section (Right Side) */}
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden xl:flex items-center gap-4 flex-shrink-0">
             {isAuthenticated && (
-              <div className="flex items-center gap-6">
+              <div className="flex items-center h-full gap-4">
+                <div className="h-8 w-px bg-zinc-800/50 mx-2" />
+                
                 <Link
                   to="/profile"
-                  className="flex items-center gap-2 group border-r border-zinc-800 pr-6"
+                  className="flex items-center gap-3 group border border-zinc-800/50 hover:border-neon-green/30 bg-zinc-900/30 px-3 py-1.5 rounded-lg transition-all duration-300 hover:bg-zinc-900/50"
                 >
-                  <div className="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center group-hover:border-neon-green transition-all overflow-hidden bg-gradient-to-br from-neon-green/10 to-transparent shadow-neon-sm">
+                  <div className="relative w-8 h-8 rounded-full border border-zinc-800 group-hover:border-neon-green transition-all overflow-hidden flex-shrink-0 bg-black">
                     {user?.avatar ? (
-                      <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                      <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                     ) : (
-                      <User className="text-zinc-500 group-hover:text-neon-green w-4 h-4" />
+                      <div className="w-full h-full flex items-center justify-center bg-zinc-900 text-neon-green/30 font-bold text-xs uppercase">
+                        {user?.username?.[0]}
+                      </div>
                     )}
+                    <div className="absolute inset-0 shadow-[inset_0_0_8px_rgba(0,0,0,0.5)]" />
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-[8px] text-zinc-500 tracking-tighter uppercase font-mono">OPERATOR</span>
-                    <span className="text-[11px] font-bold text-white group-hover:text-neon-green transition-colors font-mono">{user?.username.toUpperCase()}</span>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-[6px] xl:text-[7px] text-zinc-600 tracking-[0.2em] xl:tracking-[0.3em] font-black uppercase leading-none mb-0.5 group-hover:text-neon-green/50 transition-colors">ROOT_SESSION</span>
+                    <span className="text-[10px] xl:text-[11px] font-bold text-zinc-300 group-hover:text-white transition-colors font-mono truncate leading-none uppercase">{user?.username}</span>
                   </div>
                 </Link>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <Link
                     to="/notifications"
-                    className="relative p-2 text-zinc-500 hover:text-neon-green transition-colors bg-zinc-900/50 rounded-lg border border-zinc-800 hover:border-neon-green/30 group"
+                    className="relative p-2.5 text-zinc-500 hover:text-neon-green transition-all bg-zinc-900/50 rounded-lg border border-zinc-800/50 hover:border-neon-green/30 hover:shadow-neon-sm group h-10 w-10 flex items-center justify-center"
                     title="Notifications"
                   >
                     <Bell className="w-4 h-4" />
@@ -146,7 +165,7 @@ const Navbar: React.FC = () => {
                       <motion.span
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        className="absolute -top-1 -right-1 w-4 h-4 bg-neon-green text-black text-[9px] font-black rounded-full flex items-center justify-center shadow-neon"
+                        className="absolute -top-1 -right-1 min-w-4 h-4 px-1 bg-neon-green text-black text-[9px] font-black rounded-full flex items-center justify-center shadow-neon z-20"
                       >
                         {unreadCount > 99 ? '99+' : unreadCount}
                       </motion.span>
@@ -155,8 +174,8 @@ const Navbar: React.FC = () => {
 
                   <button
                     onClick={handleLogout}
-                    className="p-2 text-zinc-500 hover:text-red-500 transition-colors bg-zinc-900/50 rounded-lg border border-zinc-800 hover:border-red-500/30"
-                    title="LOGOUT"
+                    className="p-2.5 text-zinc-600 hover:text-red-500 transition-all bg-zinc-900/50 rounded-lg border border-zinc-800/50 hover:border-red-500/30 h-10 w-10 flex items-center justify-center"
+                    title="TERMINATE_SESSION"
                   >
                     <LogOut className="w-4 h-4" />
                   </button>
@@ -167,16 +186,19 @@ const Navbar: React.FC = () => {
             {!isAuthenticated && (
               <div className="flex items-center gap-4">
                  <Link to="/login" className="text-[10px] font-mono font-bold tracking-[0.2em] text-zinc-500 hover:text-white transition-colors">LOGIN</Link>
-                 <Link to="/signup" className="px-4 py-2 bg-neon-green text-black text-[10px] font-mono font-black tracking-[0.2em] rounded border border-neon-green hover:bg-transparent hover:text-neon-green transition-all shadow-neon">JOIN_US</Link>
+                 <Link to="/signup" className="px-5 py-2 bg-neon-green/10 text-neon-green text-[10px] font-mono font-black tracking-[0.2em] rounded border border-neon-green/30 hover:bg-neon-green hover:text-black transition-all shadow-neon-sm hover:shadow-neon">JOIN_US</Link>
               </div>
             )}
           </div>
 
           {/* Mobile Toggle */}
-          <div className="md:hidden">
+          <div className="xl:hidden flex items-center">
+            {isAuthenticated && unreadCount > 0 && (
+              <div className="mr-4 w-2 h-2 rounded-full bg-neon-green animate-pulse shadow-neon" />
+            )}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2 text-zinc-500 hover:text-neon-green"
+              className="p-2.5 text-zinc-500 hover:text-neon-green bg-zinc-900/50 border border-zinc-800/50 rounded-lg transition-all"
             >
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -191,50 +213,61 @@ const Navbar: React.FC = () => {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="md:hidden bg-zinc-950/95 border-b border-zinc-800 backdrop-blur-2xl overflow-hidden"
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="xl:hidden bg-zinc-950/98 border-t border-zinc-900 backdrop-blur-2xl overflow-hidden shadow-2xl"
           >
-            <div className="px-4 py-6 space-y-4">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.path}
-                  onClick={() => setIsOpen(false)}
-                  className={`flex items-center gap-4 px-4 py-3 rounded-xl border ${
-                    isActive(link.path) ? 'bg-neon-green/10 border-neon-green/30 text-neon-green' : 'border-zinc-800 text-zinc-400'
-                  }`}
-                >
-                  <link.icon className="w-5 h-5" />
-                  <span className="font-mono tracking-widest text-sm">{link.name}</span>
-                </Link>
-              ))}
+            <div className="px-5 py-8 space-y-6">
+              <div className="grid grid-cols-1 gap-3">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.name}
+                    to={link.path}
+                    onClick={() => setIsOpen(false)}
+                    className={`flex items-center gap-4 px-5 py-4 rounded-xl border transition-all duration-300 ${
+                      isActive(link.path) 
+                        ? 'bg-neon-green/10 border-neon-green/30 text-neon-green shadow-neon-sm' 
+                        : 'border-zinc-800/50 text-zinc-400 hover:border-zinc-700 hover:bg-zinc-900/50'
+                    }`}
+                  >
+                    <link.icon className={`w-5 h-5 ${isActive(link.path) ? 'text-neon-green' : 'text-zinc-500'}`} />
+                    <span className="font-mono tracking-[0.2em] text-xs font-black uppercase">{link.name}</span>
+                  </Link>
+                ))}
+              </div>
               
               {isAuthenticated && (
-                <div className="pt-4 border-t border-zinc-800 space-y-3">
-                  <Link to="/notifications" onClick={() => setIsOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl border border-zinc-800 text-zinc-400 hover:border-neon-green/30 hover:text-neon-green transition-all">
-                    <div className="relative">
-                      <Bell className="w-5 h-5" />
-                      {unreadCount > 0 && (
-                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-neon-green text-black text-[9px] font-bold rounded-full flex items-center justify-center">
-                          {unreadCount > 9 ? '9+' : unreadCount}
-                        </span>
-                      )}
-                    </div>
-                    <span className="font-bold">Notifications</span>
-                  </Link>
-                  
-                  <div className="flex justify-between items-center px-2">
-                    <Link to="/profile" onClick={() => setIsOpen(false)} className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full border border-zinc-700 bg-black flex items-center justify-center shadow-neon-sm">
-                        <User className="w-5 h-5 text-zinc-500" />
+                <div className="pt-6 border-t border-zinc-900 space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-zinc-900/30 border border-zinc-800/50 rounded-2xl">
+                    <Link to="/profile" onClick={() => setIsOpen(false)} className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full border-2 border-zinc-800 bg-black flex items-center justify-center p-0.5 group-hover:border-neon-green transition-all shadow-neon-sm">
+                        {user?.avatar ? (
+                          <img src={user.avatar} alt="" className="w-full h-full object-cover rounded-full" />
+                        ) : (
+                          <User className="w-6 h-6 text-zinc-500" />
+                        )}
                       </div>
-                      <span className="font-bold text-white text-sm uppercase font-mono">{user?.username}</span>
+                      <div className="flex flex-col">
+                        <span className="text-[11px] font-black text-white uppercase tracking-widest leading-none mb-1">{user?.username}</span>
+                        <span className="text-[8px] text-zinc-600 font-mono tracking-tighter uppercase">OPERATOR_ACCESS</span>
+                      </div>
                     </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="p-3 text-red-500 bg-red-500/10 rounded-xl border border-red-500/20"
-                    >
-                      <LogOut className="w-5 h-5" />
-                    </button>
+                    
+                    <div className="flex gap-2">
+                       <Link 
+                          to="/notifications" 
+                          onClick={() => setIsOpen(false)}
+                          className="relative p-3 text-zinc-500 bg-zinc-900 border border-zinc-800 rounded-xl"
+                        >
+                          <Bell className="w-5 h-5" />
+                          {unreadCount > 0 && <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-neon-green rounded-full shadow-neon" />}
+                       </Link>
+                       <button
+                        onClick={handleLogout}
+                        className="p-3 text-red-500 bg-red-500/10 rounded-xl border border-red-500/20 active:scale-95 transition-transform"
+                      >
+                        <LogOut className="w-5 h-5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}

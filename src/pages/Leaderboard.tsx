@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Medal, Crown, Calendar, Clock, Search } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { leaderboardService, LeaderboardEntry, LeaderboardFilter } from '../services/leaderboardService';
 import { socketService } from '../utils/socket';
 import { useQuery } from '@tanstack/react-query';
@@ -34,13 +35,18 @@ const PodiumItem = ({ entry, rank, color }: { entry: LeaderboardEntry; rank: num
         {rank}
       </div>
       
-      <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-surface-border mb-4 bg-surface">
-        {entry.avatar ? (
-          <img src={entry.avatar} alt={entry.username} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-surface-border text-text-secondary text-2xl font-bold">
-            {entry.username[0].toUpperCase()}
-          </div>
+      <div className="relative w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-neon-green/40 to-transparent mb-4 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+        <div className="w-full h-full rounded-full overflow-hidden border border-zinc-800 bg-surface flex items-center justify-center">
+          {entry.avatar ? (
+            <img src={entry.avatar} alt={entry.username} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-zinc-900 text-neon-green/30 text-3xl font-black italic">
+              {entry.username[0].toUpperCase()}
+            </div>
+          )}
+        </div>
+        {rank === 1 && (
+          <div className="absolute inset-0 rounded-full bg-neon-green/10 animate-pulse blur-md" />
         )}
       </div>
 
@@ -100,14 +106,14 @@ const Leaderboard = () => {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-5xl">
+    <div className="container mx-auto px-4 py-6 sm:py-8 md:py-10 lg:py-12 max-w-5xl">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-10 md:mb-12">
         <div className="space-y-2">
           <motion.h1 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-4xl font-black italic tracking-tighter text-glow"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black italic tracking-tighter text-glow"
           >
             RANKINGS
           </motion.h1>
@@ -198,20 +204,23 @@ const Leaderboard = () => {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full border border-surface-border overflow-hidden bg-surface flex-shrink-0">
+                            <div className="w-10 h-10 rounded-full border border-zinc-700 group-hover:border-neon-green shadow-[0_0_10px_rgba(0,0,0,0.3)] overflow-hidden bg-black flex-shrink-0 transition-all flex items-center justify-center p-0.5">
                               {entry.avatar ? (
-                                <img src={entry.avatar} alt="" className="w-full h-full object-cover" />
+                                <img src={entry.avatar} alt="" className="w-full h-full object-cover rounded-full" />
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center text-[10px] text-text-muted">
-                                  ID
+                                <div className="text-[12px] text-neon-green/40 font-black italic">
+                                  {entry.username[0].toUpperCase()}
                                 </div>
                               )}
                             </div>
-                            <span className="font-bold text-text-primary group-hover:text-neon-green transition-colors">
-                              {entry.username}
-                            </span>
+                            <Link
+                              to={`/profile/${entry.username}`}
+                              className="font-bold text-text-primary group-hover:text-neon-green transition-colors"
+                            >
+                              {entry.username.toUpperCase()}
+                            </Link>
                             {entry.country && (
-                              <span className="text-xs text-text-muted">[{entry.country}]</span>
+                              <span className="text-[10px] text-zinc-500 font-mono">[{entry.country}]</span>
                             )}
                           </div>
                         </td>
