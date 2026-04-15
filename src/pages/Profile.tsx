@@ -152,9 +152,9 @@ const Profile = () => {
     setLocalAvatar(authUser?.avatar || null);
   };
 
-  const { register: registerPassword, handleSubmit: handleSubmitPassword, reset: resetPassword } = useForm<ChangePasswordPayload>();
+  const { register: registerPassword, handleSubmit: handleSubmitPassword, reset: resetPassword, formState: { errors: passwordErrors } } = useForm<ChangePasswordPayload>();
 
-  const { register: registerProfile, handleSubmit: handleSubmitProfile, reset: resetProfile, setValue } = useForm<UpdateProfilePayload>();
+  const { register: registerProfile, handleSubmit: handleSubmitProfile, reset: resetProfile, formState: { errors: profileErrors }, setValue } = useForm<UpdateProfilePayload>();
 
   useEffect(() => {
     if (profile) {
@@ -562,6 +562,14 @@ const Profile = () => {
                       className="btn-primary w-full py-3 text-xs tracking-[0.2em] font-black italic"
                     >
                       {updateProfileMutation.isPending ? "UPDATING_PROFILE..." : "SAVE_PROFILE"}
+                    </button>
+                    
+                    <button 
+                      type="button" 
+                      onClick={() => resetProfile()}
+                      className="w-full text-[10px] text-zinc-600 hover:text-zinc-400 mt-4 font-mono uppercase transition-colors"
+                    >
+                       RESET_TO_PREVIOUS_BACKUP
                     </button>
                   </form>
                 </div>

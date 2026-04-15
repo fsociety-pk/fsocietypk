@@ -155,6 +155,7 @@ const Challenges: React.FC = () => {
                 const isSolvedUI = totalFlagSteps > 1
                   ? completedSteps >= totalFlagSteps
                   : Boolean(challenge.isSolved);
+                const progressPercent = Math.round((completedSteps / totalFlagSteps) * 100);
 
                 return (
               <motion.div
