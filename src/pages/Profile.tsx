@@ -17,15 +17,11 @@ import {
   Globe,
   Mail,
   Award,
-  Zap,
-  Target,
   Shield,
   Activity,
-  Cpu,
   MapPin,
   Calendar,
-  ExternalLink,
-  Code
+  ExternalLink
 } from 'lucide-react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { userService, ChangePasswordPayload, UpdateProfilePayload } from '../services/userService';

@@ -112,4 +112,10 @@ export const challengeService = {
     const response = await api.get<ApiResponse<IChallenge[]>>('/challenges/my-submissions');
     return response.data;
   },
+
+  /** Get recent solvers for a challenge */
+  getRecentSolvers: async (id: string): Promise<ApiResponse<any[]>> => {
+    const response = await api.get<ApiResponse<any[]>>(`/challenges/${id}/solvers`);
+    return response.data;
+  },
 };
