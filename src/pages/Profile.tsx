@@ -523,11 +523,6 @@ const Profile: React.FC = () => {
 
                     <form onSubmit={handleSubmitProfile((data) => updateProfileMutation.mutate(data))} className="space-y-6">
                       <div className="space-y-1.5">
-                        <label className="text-[10px] text-zinc-400 uppercase tracking-widest">Username</label>
-                        <input type="text" placeholder="Your username..." className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-sm font-mono focus:border-neon-green/50 outline-none transition-colors text-white placeholder-zinc-700" {...registerProfile('username')} />
-                      </div>
-
-                      <div className="space-y-1.5">
                         <label className="text-[10px] text-zinc-400 uppercase tracking-widest">Bio</label>
                         <textarea placeholder="Tell us about yourself..." className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-sm font-mono h-24 resize-none focus:border-neon-green/50 outline-none transition-colors text-white placeholder-zinc-700" maxLength={200} {...registerProfile('bio')} />
                         <p className="text-[9px] text-zinc-600">Max 200 characters</p>
@@ -590,7 +585,29 @@ const Profile: React.FC = () => {
 
               {/* ── SETTINGS TAB ── */}
               {activeTab === 'settings' && (
-                <motion.div key="settings" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="max-w-md">
+                <motion.div key="settings" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="max-w-2xl space-y-6">
+                  {/* Username Change Section */}
+                  <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-6 md:p-8 space-y-6">
+                    <div>
+                      <h3 className="text-lg font-black flex items-center gap-3 uppercase italic text-neon-green tracking-tight">
+                        <UserIcon size={18} /> Identity Override
+                      </h3>
+                      <p className="text-xs text-zinc-500 mt-1">Update your username and account settings.</p>
+                    </div>
+
+                    <form onSubmit={handleSubmitProfile((data) => updateProfileMutation.mutate(data))} className="space-y-6">
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] text-zinc-400 uppercase tracking-widest">New Username</label>
+                        <input type="text" placeholder="Your new username..." className="w-full bg-black border border-zinc-800 rounded-lg px-4 py-2.5 text-sm font-mono focus:border-neon-green/50 outline-none transition-colors text-white placeholder-zinc-700" {...registerProfile('username')} />
+                      </div>
+
+                      <button type="submit" disabled={updateProfileMutation.isPending} className="w-full py-3 bg-neon-green text-black font-black text-xs uppercase tracking-widest rounded-lg hover:brightness-110 disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(0,255,65,0.2)]">
+                        {updateProfileMutation.isPending ? 'UPDATING...' : 'UPDATE USERNAME'}
+                      </button>
+                    </form>
+                  </div>
+
+                  {/* Password Change Section */}
                   <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-6 md:p-8 space-y-8">
                     <div>
                       <h3 className="text-lg font-black flex items-center gap-3 uppercase italic text-neon-green tracking-tight">

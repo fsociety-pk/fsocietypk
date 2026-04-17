@@ -5,6 +5,7 @@ import { ArrowLeft, Terminal, FileDown, HelpCircle, Trophy, Send, CheckCircle2, 
 import { challengeService } from '../services/challenge.service';
 import { useAuthStore } from '../store/authStore';
 import { useQuery } from '@tanstack/react-query';
+import WriteupSubmissionModal from '../components/common/WriteupSubmissionModal';
 
 import { IChallenge } from '../types';
 import { toast } from 'react-hot-toast';
@@ -28,6 +29,7 @@ const ChallengeDetail: React.FC = () => {
   const [flagValues, setFlagValues] = useState<string[]>([]);
   const [flagFeedback, setFlagFeedback] = useState<FlagFeedback | null>(null);
   const [roastError, setRoastError] = useState(false);
+  const [showWriteupModal, setShowWriteupModal] = useState(false);
 
   const { data: recentSolvers } = useQuery({
     queryKey: ['challenge-solvers', id],
@@ -157,7 +159,7 @@ const ChallengeDetail: React.FC = () => {
             type: 'success',
             message: `ACCESS_GRANTED :: FLAG_${step}_VERIFIED :: MISSION_COMPLETE`,
           });
-          toast.success(`FLAG ACCEPTED: ${result.points ?? 0} PTS AWARDED`, {
+          toast.success(`MISSION COMPLETE: +${result.points ?? 0} PTS`, {
             style: { border: '1px solid #00ff41', padding: '16px', color: '#00ff41', background: '#0a0a0a' },
             iconTheme: { primary: '#00ff41', secondary: '#0a0a0a' },
           });
@@ -165,6 +167,8 @@ const ChallengeDetail: React.FC = () => {
           setCompletedFlagSteps(allDone);
           saveFlagProgress(id, allDone);
           setChallenge(prev => prev ? { ...prev, isSolved: true } : null);
+          // Show writeup submission modal
+          setTimeout(() => setShowWriteupModal(true), 800);
         } else {
           const nextStep = result.nextSequence ?? (step + 1);
           setFlagFeedback({
@@ -172,7 +176,7 @@ const ChallengeDetail: React.FC = () => {
             message: `ACCESS_GRANTED :: FLAG_${step}_VERIFIED :: FLAG_${nextStep}_UNLOCKED`,
           });
           setCurrentFlagStep(nextStep);
-          toast.success(`FLAG ACCEPTED. FLAG ${nextStep} UNLOCKED`, {
+          toast.success(`FLAG VERIFIED: +${result.points ?? 0} PTS | FLAG ${nextStep} UNLOCKED`, {
             style: { border: '1px solid #00ff41', padding: '16px', color: '#00ff41', background: '#0a0a0a' },
             iconTheme: { primary: '#00ff41', secondary: '#0a0a0a' },
           });
@@ -236,6 +240,13 @@ const ChallengeDetail: React.FC = () => {
           </div>
         </div>
       )}
+
+      <WriteupSubmissionModal
+        isOpen={showWriteupModal}
+        onClose={() => setShowWriteupModal(false)}
+        challengeId={id || ''}
+        challengeTitle={challenge?.title || ''}
+      />
       <div className="max-w-4xl mx-auto">
         {/* ── Navigation ────────────────────────────────────────────── */}
         <button
@@ -301,42 +312,6 @@ const ChallengeDetail: React.FC = () => {
                   </div>
                 </div>
               )}
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6"
-            >
-              <h3 className="text-sm font-bold text-zinc-500 uppercase flex items-center gap-2 mb-4">
-                <Users className="w-4 h-4" /> RECENT_SOLVERS
-              </h3>
-              <div className="space-y-3">
-                {recentSolvers && recentSolvers.length > 0 ? (
-                  recentSolvers.map((solver: any, i: number) => (
-                    <div key={i} className="flex items-center justify-between p-2 bg-black/30 border border-zinc-800/50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full border border-neon-green/30 flex items-center justify-center overflow-hidden">
-                          {solver.avatar ? (
-                            <img src={solver.avatar} alt={solver.username} className="w-full h-full object-cover" />
-                          ) : (
-                            <span className="text-xs text-neon-green/50">{solver.username[0].toUpperCase()}</span>
-                          )}
-                        </div>
-                        <span className="text-sm text-zinc-300 font-bold">{solver.username}</span>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-[10px] text-neon-green font-mono">{solver.score} PTS</p>
-                        <p className="text-[9px] text-zinc-500 uppercase font-mono">
-                          {new Date(solver.timestamp).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-xs text-zinc-600 font-mono italic">NO_SOLVERS_DETECTED_YET</p>
-                )}
-              </div>
             </motion.div>
 
             {/* Flag Submission */}
@@ -524,6 +499,44 @@ const ChallengeDetail: React.FC = () => {
                 ))}
               </motion.div>
             )}
+
+            {/* Recent Solvers Section */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 }}
+              className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6 space-y-4"
+            >
+              <h3 className="text-sm font-bold text-zinc-500 uppercase flex items-center gap-2">
+                <Users className="w-4 h-4" /> RECENT_SOLVERS
+              </h3>
+              <div className="space-y-3">
+                {recentSolvers && recentSolvers.length > 0 ? (
+                  recentSolvers.map((solver: any, i: number) => (
+                    <div key={i} className="flex items-center justify-between p-2 bg-black/30 border border-zinc-800/50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full border border-neon-green/30 flex items-center justify-center overflow-hidden flex-shrink-0">
+                          {solver.avatar ? (
+                            <img src={solver.avatar} alt={solver.username} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-xs text-neon-green/50">{solver.username[0].toUpperCase()}</span>
+                          )}
+                        </div>
+                        <span className="text-xs text-zinc-300 font-bold truncate">{solver.username}</span>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-[10px] text-neon-green font-mono">{solver.score} PTS</p>
+                        <p className="text-[9px] text-zinc-500 uppercase font-mono">
+                          {new Date(solver.timestamp).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-xs text-zinc-600 font-mono italic">NO_SOLVERS_DETECTED_YET</p>
+                )}
+              </div>
+            </motion.div>
           </div>
         </div>
       </div>

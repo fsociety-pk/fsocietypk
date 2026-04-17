@@ -19,6 +19,8 @@ import Leaderboard from './pages/Leaderboard';
 import Profile from './pages/Profile';
 import PublicProfile from './pages/PublicProfile';
 import Notifications from './pages/Notifications';
+import Writeups from './pages/Writeups';
+import SubmitWriteup from './pages/SubmitWriteup';
 import AdminDashboard from './pages/admin/Dashboard';
 import ManageChallenges from './pages/admin/ManageChallenges';
 import ManageUsers from './pages/admin/ManageUsers';
@@ -173,7 +175,10 @@ function App() {
           <Route path="/challenges/:id" element={<ProtectedRoute><ChallengeDetail /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/submit-challenge" element={<ProtectedRoute><SubmitChallenge /></ProtectedRoute>} />
+          <Route path="/submit-writeup" element={<ProtectedRoute><SubmitWriteup /></ProtectedRoute>} />
           <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+          <Route path="/writeups" element={<ProtectedRoute><Writeups /></ProtectedRoute>} />
+          <Route path="/writeups/challenge/:challengeId" element={<ProtectedRoute><Writeups /></ProtectedRoute>} />
 
           {/* Admin Command Center */}
           <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminLayout /></ProtectedRoute>}>

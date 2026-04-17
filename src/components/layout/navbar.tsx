@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Terminal, Shield, Trophy, User, LogOut, Menu, X, Bell, Folder } from 'lucide-react';
+import { Terminal, Shield, Trophy, User, LogOut, Menu, X, Bell, Folder, BookOpen } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { authService } from '../../services/auth.service';
 import {
@@ -68,7 +68,9 @@ const Navbar: React.FC = () => {
         { name: 'DASHBOARD', path: '/dashboard', icon: Terminal },
         { name: 'MISSIONS', path: '/challenges', icon: Shield },
         { name: 'HALL_OF_FAME', path: '/leaderboard', icon: Trophy },
+        { name: 'WRITEUPS', path: '/writeups', icon: BookOpen },
         { name: 'SUBMIT_MISSION', path: '/submit-challenge', icon: Terminal },
+        { name: 'SUBMIT_WRITEUP', path: '/submit-writeup', icon: BookOpen },
         { name: 'PROJECTS', path: '/projects', icon: Folder },
       ]
     : [
@@ -104,12 +106,14 @@ const Navbar: React.FC = () => {
             </Link>
 
             {/* Desktop Nav Links */}
-            <div className="hidden xl:flex items-center gap-1 xl:gap-2 h-full">
+            <div className="hidden xl:flex items-center justify-start gap-1 xl:gap-1 h-full">
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
                   to={link.path}
                   className={`relative flex items-center gap-1.5 xl:gap-2 px-2 xl:px-3 py-2 text-[10px] xl:text-[11px] font-mono font-bold tracking-[0.05em] xl:tracking-[0.15em] transition-all duration-300 group/link whitespace-nowrap overflow-hidden ${
+                    (link.name === 'WRITEUPS' || link.name === 'PROJECTS' || link.name === 'SUBMIT_WRITEUP') ? 'hidden 2xl:flex' : ''
+                  } ${
                     isActive(link.path) ? 'text-neon-green' : 'text-zinc-500 hover:text-zinc-200'
                   }`}
                 >
