@@ -85,7 +85,7 @@ const AdminLayout: React.FC = () => {
         </div>
       </header>
 
-      <main className="flex-grow z-10 relative">
+      <main className="flex-grow z-10 relative mt-16">
         <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
           <Outlet />
         </div>
