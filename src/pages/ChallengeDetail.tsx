@@ -178,7 +178,7 @@ const ChallengeDetail: React.FC = () => {
             challengeName: challenge?.title || 'Unknown Challenge',
             completionDate: new Date(),
             totalChallenges: user?.solvedChallenges.length || 1,
-            platformName: 'fsociety',
+            platformName: 'FSOCIETY.PK',
             platformURL: window.location.href,
           };
           setCertificateData(certData);
@@ -272,7 +272,7 @@ const ChallengeDetail: React.FC = () => {
           challengeName: challenge?.title || 'Unknown Challenge',
           completionDate: new Date(),
           totalChallenges: 1,
-          platformName: 'fsociety',
+          platformName: 'FSOCIETY.PK',
           platformURL: window.location.href,
         }}
         isOpen={showCertificateModal}

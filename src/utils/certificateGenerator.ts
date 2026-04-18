@@ -118,12 +118,12 @@ export const generateCertificateSVG = (data: CertificateData): string => {
     
     <!-- Authority section -->
     <text x="850" y="680" fill="#00FF41" font-weight="bold" letter-spacing="3">AUTHORITY</text>
-    <text x="850" y="710" fill="#FFFFFF" font-size="14">${data.platformName.toUpperCase()}</text>
+    <text x="850" y="710" fill="#FFFFFF" font-size="14">FSOCIETY.PK</text>
   </g>
 
   <!-- Footer -->
   <line x1="100" y1="745" x2="1100" y2="745" stroke="#00FF41" stroke-width="1" opacity="0.4"/>
-  <text x="600" y="770" font-family="'Courier New', monospace" font-size="11" fill="#666666" text-anchor="middle" letter-spacing="3">© 2026 FSOCIETY.PK // SECURE_COMMUNICATIONS_NETWORK</text>
+  <text x="600" y="770" font-family="'Courier New', monospace" font-size="11" fill="#666666" text-anchor="middle" letter-spacing="3">© 2026 FSOCIETY_PK // SECURE_COMMUNICATIONS_NETWORK</text>
 </svg>`;
 };
 
@@ -176,13 +176,13 @@ export const downloadCertificateAsImage = async (
  * Generate LinkedIn share description
  */
 export const generateLinkedInDescription = (data: CertificateData): string => {
-  return `🎖️ Excited to announce that I've successfully completed "${data.challengeName}" on ${data.platformName}! 
+  return `🎖️ Excited to announce that I've successfully completed "${data.challengeName}" on FSOCIETY.PK! 🔥
 
 Completed ${data.totalChallenges} challenge(s) as part of my cybersecurity training journey. This experience has strengthened my skills in security assessment and problem-solving.
 
-${data.platformName} is a great platform for hands-on learning. Highly recommend it for anyone looking to develop their cybersecurity expertise!
+FSOCIETY.PK is a phenomenal platform for hands-on learning. Highly recommend it for anyone looking to develop their cybersecurity expertise!
 
-#Cybersecurity #HackingChallenge #InfoSec #${data.platformName} #LearningJourney`;
+#Cybersecurity #HackingChallenge #InfoSec #FsocietyPK #PakistanCyberSecurity #LearningJourney`;
 };
 
 /**
