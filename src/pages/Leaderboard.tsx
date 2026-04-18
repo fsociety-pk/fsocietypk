@@ -7,6 +7,9 @@ import { socketService } from '../utils/socket';
 import { useQuery } from '@tanstack/react-query';
 import { clsx } from 'clsx';
 import { toast } from 'react-hot-toast';
+import Lottie from 'lottie-react';
+import winnerBadge from '../../images/rank_1.json';
+import podiumBadge from '../../images/rank_2and3.json';
 
 const getCountryEmoji = (code: string) => {
   switch (code) {
@@ -31,21 +34,11 @@ const getCountryEmoji = (code: string) => {
 // Inject custom CSS animations for Hall of Fame
 const injectHallOfFameStyles = () => {
   if (document.getElementById('hall-of-fame-styles')) return;
-  
+
   const style = document.createElement('style');
   style.id = 'hall-of-fame-styles';
   style.textContent = `
-    @keyframes rotate-3d {
-      0% { transform: rotateX(20deg) rotateY(0deg); }
-      100% { transform: rotateX(20deg) rotateY(360deg); }
-    }
-    @keyframes levitate {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-20px); }
-    }
-    .hall-of-fame-avatar {
-      animation: rotate-3d 8s linear infinite, levitate 4s ease-in-out infinite;
-    }
+    /* Animations removed - using animate-pulse for static blinking effect */
   `;
   document.head.appendChild(style);
 };
@@ -55,111 +48,82 @@ injectHallOfFameStyles();
 // ── Components ────────────────────────────────────────────────────
 
 const HallOfFameCard = ({ entry }: { entry: LeaderboardEntry }) => {
-  const particles = Array.from({ length: 6 }, (_, i) => i);
-
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.6 }}
-      className="hall-of-fame relative flex flex-col items-center p-8 md:p-12 rounded-2xl border-2 border-neon-green bg-gradient-to-br from-neon-green/10 via-background-card to-background-card transition-all duration-300 md:col-span-1 md:col-start-2"
+      className="relative flex flex-col items-center p-8 rounded-2xl border-2 border-neon-green bg-zinc-900/50 transition-all duration-300 gap-6 w-[400px] mx-auto overflow-hidden"
     >
-      {/* Animated background glow */}
-      <div className="absolute inset-0 rounded-2xl blur-xl bg-neon-green/20 -z-10 animate-pulse" />
+      {/* Background Glow */}
+      <div className="absolute inset-0 blur-[60px] bg-neon-green/10 -z-10 animate-pulse" />
       
-      {/* Top label */}
-      <motion.div
-        animate={{ y: [0, -5, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
-        className="mb-6"
-      >
-        <span className="px-4 py-2 bg-neon-green/20 border border-neon-green/50 rounded-lg text-[10px] font-black tracking-widest text-neon-green uppercase">
-          ⭐ HALL OF FAME
-        </span>
-      </motion.div>
 
-      {/* 3D rotating avatar */}
-      <div className="relative mb-8 perspective">
-        {/* Floating particles */}
-        {particles.map((i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-neon-green rounded-full"
-            style={{
-              left: `${Math.cos((i / 6) * Math.PI * 2) * 80}px`,
-              top: `${Math.sin((i / 6) * Math.PI * 2) * 80}px`,
-              '--tx': `${Math.cos((i / 6) * Math.PI * 2) * 100}px`,
-            } as React.CSSProperties}
-            animate={{ opacity: [0.3, 0.8, 0.3] }}
-            transition={{ duration: 3, delay: i * 0.2, repeat: Infinity }}
-          />
-        ))}
 
-        <motion.div
-          className="hall-of-fame-avatar relative w-32 h-32 rounded-full bg-gradient-to-tr from-neon-green/40 to-neon-green/10 p-1 shadow-[0_0_40px_rgba(20,255,100,0.4)]"
-          style={{
-            boxShadow: '0 0 40px rgba(20, 255, 100, 0.6), inset 0 0 40px rgba(20, 255, 100, 0.2), 0 0 80px rgba(20, 255, 100, 0.3)',
-          }}
-        >
-          <Link to={`/profile/${entry.username}`} className="relative block w-full h-full group">
-            <div className="w-full h-full rounded-full overflow-hidden border-2 border-neon-green/50 bg-zinc-900 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
-              {entry.avatar ? (
-                <img 
-                  src={entry.avatar} 
-                  alt={entry.username} 
-                  className="w-full h-full object-cover" 
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-5xl font-black text-neon-green/40">
-                  {entry.username[0].toUpperCase()}
-                </div>
-              )}
-            </div>
-          </Link>
-        </motion.div>
-
-        {/* Rotating ring */}
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 20, repeat: Infinity, linear: true }}
-          className="absolute inset-0 rounded-full border border-dashed border-neon-green/30 pointer-events-none"
-        />
-        <motion.div
-          animate={{ rotate: -360 }}
-          transition={{ duration: 15, repeat: Infinity, linear: true }}
-          className="absolute inset-4 rounded-full border border-dashed border-neon-green/20 pointer-events-none"
-        />
-      </div>
-
-      {/* Username and info */}
-      <div className="text-center space-y-2 mb-6">
-        <Link 
+      {/* Avatar Section */}
+      <div className="relative w-40 h-40 flex items-center justify-center">
+        <Link
           to={`/profile/${entry.username}`}
-          className="block text-2xl md:text-3xl font-black text-neon-green hover:text-white transition-colors"
+          className="relative block w-32 h-32 z-10"
         >
-          {entry.username.toUpperCase()}
+          <div className="w-full h-full rounded-full overflow-hidden border-2 border-neon-green bg-zinc-900 shadow-[0_0_30px_rgba(20,255,100,0.3)]">
+            {entry.avatar ? (
+              <img
+                src={entry.avatar}
+                alt={entry.username}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="text-5xl font-black text-neon-green/40 flex items-center justify-center h-full">
+                {entry.username[0].toUpperCase()}
+              </div>
+            )}
+          </div>
         </Link>
-        <div className="flex items-center justify-center gap-2">
-          {entry.country && (
-            <span className="text-2xl" title={entry.country}>{getCountryEmoji(entry.country)}</span>
-          )}
-          <span className="px-3 py-1 bg-neon-green/20 border border-neon-green/50 rounded text-[11px] font-black tracking-widest text-neon-green uppercase">
-            GODLIKE
-          </span>
+
+        {/* 🔥 Lottie Frame Overlay */}
+        <div className="absolute z-30 pointer-events-none top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72">
+          <Lottie
+            animationData={winnerBadge}
+            loop={true}
+            style={{ width: '100%', height: '100%' }}
+          />
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="space-y-2 text-center w-full border-t border-neon-green/20 pt-6">
-        <motion.div animate={{ scale: [1, 1.05, 1] }} transition={{ duration: 2, repeat: Infinity }}>
-          <div className="flex items-center justify-center gap-2 text-neon-green font-mono font-bold text-lg">
-            <Trophy size={20} />
+      {/* Info Section */}
+      <div className="flex flex-col items-center gap-3">
+        <div className="flex items-center gap-2">
+          <Link
+            to={`/profile/${entry.username}`}
+            className="text-3xl font-black text-white hover:text-neon-green transition-colors uppercase tracking-tight"
+          >
+            {entry.username}
+          </Link>
+          {entry.country && (
+            <span className="text-2xl" title={entry.country}>
+              {getCountryEmoji(entry.country)}
+            </span>
+          )}
+        </div>
+
+        {/* Red Tag */}
+        <span className="px-4 py-1 bg-red-500/20 border border-red-500/50 rounded-full text-[12px] font-black tracking-[0.2em] text-red-500 uppercase shadow-[0_0_15px_rgba(239,68,68,0.3)] animate-pulse">
+          GODLIKE
+        </span>
+
+        {/* Stats */}
+        <div className="flex flex-col items-center gap-1 mt-2">
+          <div className="flex items-center gap-2 text-neon-green font-mono font-bold text-2xl">
+            <Trophy size={24} className="animate-pulse" />
             <span>{entry.score.toLocaleString()} PTS</span>
           </div>
-        </motion.div>
-        {entry.solveCount !== undefined && (
-          <p className="text-xs text-text-muted/80">{entry.solveCount} CHALLENGES MASTERED</p>
-        )}
+          {entry.solveCount !== undefined && (
+            <p className="text-[10px] text-text-muted/60 font-mono tracking-widest uppercase">
+              {entry.solveCount} CHALLENGES MASTERED
+            </p>
+          )}
+        </div>
       </div>
     </motion.div>
   );
@@ -167,7 +131,7 @@ const HallOfFameCard = ({ entry }: { entry: LeaderboardEntry }) => {
 
 const PodiumItem = ({ entry, rank, color }: { entry: LeaderboardEntry; rank: number; color: string }) => {
   const Icon = rank === 2 ? Trophy : Medal;
-  
+
   const motivationTags = {
     2: "ELITE",
     3: "PRODIGY"
@@ -179,26 +143,43 @@ const PodiumItem = ({ entry, rank, color }: { entry: LeaderboardEntry; rank: num
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: rank * 0.1 }}
       className={clsx(
-        "relative flex flex-col items-center p-6 rounded-xl border bg-background-card transition-all duration-300",
+        "relative flex flex-col items-center p-6 rounded-xl border-2 bg-background-card transition-all duration-300",
         rank === 2 ? "scale-100" : "scale-95",
-        color === 'silver' && "border-blue-400/50 shadow-[0_0_15px_rgba(96,165,250,0.3)]",
-        color === 'bronze' && "border-orange-400/50 shadow-[0_0_15px_rgba(251,146,60,0.3)]"
+        color === 'silver' && "border-blue-400/50 shadow-[0_0_30px_rgba(96,165,250,0.5)]",
+        color === 'bronze' && "border-orange-400/50 shadow-[0_0_30px_rgba(251,146,60,0.5)]"
       )}
     >
-      <div className={clsx(
-        "absolute -top-4 w-8 h-8 rounded-full flex items-center justify-center font-bold text-background",
-        color === 'silver' && "bg-blue-400",
-        color === 'bronze' && "bg-orange-400"
-      )}>
-        {rank}
-      </div>
-      
-      <div className="relative mb-4">
-        <Link to={`/profile/${entry.username}`} className="relative group cursor-pointer block">
+
+
+      <div className="relative mb-4 w-40 h-40 flex items-center justify-center">
+        {/* Lottie Badge Frame - Behind avatar */}
+        <div className="absolute z-5 pointer-events-none top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-56 h-56">
+          <Lottie
+            animationData={podiumBadge}
+            loop={true}
+            style={{
+              width: '100%',
+              height: '100%',
+            }}
+          />
+        </div>
+
+        {/* Rotating Frame Border - Around Avatar */}
+        <div 
+          className={clsx(
+            "absolute w-32 h-32 rounded-full animate-spin z-15",
+            color === 'silver' && "border-1 border-blue-400/60",
+            color === 'bronze' && "border-1 border-orange-400/60"
+          )}
+          style={{ animationDuration: '6s' }}
+        />
+
+        {/* User Avatar Overlay */}
+        <Link to={`/profile/${entry.username}`} className="relative group cursor-pointer z-20">
           <div className="relative w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-white/20 to-transparent shadow-[0_0_20px_rgba(0,0,0,0.5)] transition-transform duration-300 group-hover:scale-105">
             <div className="w-full h-full rounded-full overflow-hidden border border-zinc-800 bg-surface flex items-center justify-center">
               {entry.avatar ? (
-                <img src={entry.avatar} alt={entry.username} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" />
+                <img src={entry.avatar} alt={entry.username} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110 opacity-90" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-zinc-900 text-gray-400/30 text-3xl font-black italic">
                   {entry.username[0].toUpperCase()}
@@ -211,7 +192,7 @@ const PodiumItem = ({ entry, rank, color }: { entry: LeaderboardEntry; rank: num
 
       <div className="flex flex-col items-center mb-1">
         <div className="flex items-center gap-2">
-          <Link 
+          <Link
             to={`/profile/${entry.username}`}
             className="text-lg font-bold text-text-primary hover:text-neon-green transition-colors"
           >
@@ -234,7 +215,7 @@ const PodiumItem = ({ entry, rank, color }: { entry: LeaderboardEntry; rank: num
         <Icon size={16} />
         <span>{entry.score.toLocaleString()} pts</span>
       </div>
-      
+
       {entry.solveCount !== undefined && (
         <p className="text-xs text-text-muted mt-2">{entry.solveCount} challenges solved</p>
       )}
@@ -267,7 +248,7 @@ const Leaderboard = () => {
     };
   }, [refetch]);
 
-  const filteredData = data?.filter(entry => 
+  const filteredData = data?.filter(entry =>
     entry.username.toLowerCase().includes(search.toLowerCase())
   ) || [];
 
@@ -285,7 +266,7 @@ const Leaderboard = () => {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-10 md:mb-12">
         <div className="space-y-2">
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black italic tracking-tighter text-glow"
@@ -304,8 +285,8 @@ const Leaderboard = () => {
                 onClick={() => setFilter(f.id)}
                 className={clsx(
                   "flex items-center gap-2 px-4 py-2 rounded-md font-mono text-sm transition-all duration-200",
-                  filter === f.id 
-                    ? "bg-neon-green text-background font-bold shadow-neon-sm" 
+                  filter === f.id
+                    ? "bg-neon-green text-background font-bold shadow-neon-sm"
                     : "text-text-secondary hover:text-text-primary hover:bg-surface-border"
                 )}
               >
@@ -338,15 +319,15 @@ const Leaderboard = () => {
         <>
           {/* Top 3 Podium with Hall of Fame for Rank 1 */}
           {filteredData.length > 0 && !search && (
-            <div className="mb-16">
-              {/* Hall of Fame - Rank 1 */}
+            <div className="mb-16 space-y-8">
+              {/* Rank 1 - VIP Podium Style */}
               {topThree[0] && (
-                <div className="grid grid-cols-1 mb-16">
+                <div className="flex justify-center">
                   <HallOfFameCard entry={topThree[0]} />
                 </div>
               )}
-              
-              {/* Rank 2 & 3 Podium */}
+
+              {/* Rank 2 & 3 Podium Below */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-4">
                 {topThree[1] && <PodiumItem entry={topThree[1]} rank={2} color="silver" />}
                 {topThree[2] && <PodiumItem entry={topThree[2]} rank={3} color="bronze" />}
