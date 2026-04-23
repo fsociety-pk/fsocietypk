@@ -69,6 +69,7 @@ const Navbar: React.FC = () => {
         { name: 'MISSIONS', path: '/challenges', icon: Shield },
         { name: 'HALL_OF_FAME', path: '/leaderboard', icon: Trophy },
         { name: 'WRITEUPS', path: '/writeups', icon: BookOpen },
+        { name: 'RESOURCES', path: '/resources', icon: BookOpen },
         { name: 'SUBMIT_MISSION', path: '/submit-challenge', icon: Terminal },
         { name: 'SUBMIT_WRITEUP', path: '/submit-writeup', icon: BookOpen },
         { name: 'PROJECTS', path: '/projects', icon: Folder },

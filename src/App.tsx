@@ -29,6 +29,7 @@ import AdminSettings from './pages/admin/Settings';
 import SubmitChallenge from './pages/SubmitChallenge';
 import Projects from './pages/Projects';
 import ManageProjects from './pages/admin/ManageProjects';
+import Resources from './pages/Resources';
 
 import { API_URL } from './services/apiConfig';
 
@@ -168,6 +169,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/resources" element={<Resources />} />
 
           {/* Protected Area */}
           <Route path="/challenges" element={<ProtectedRoute><Challenges /></ProtectedRoute>} />

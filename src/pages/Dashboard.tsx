@@ -19,7 +19,9 @@ import {
   Lock,
   Crosshair,
   Zap,
+  BookOpen,
 } from 'lucide-react';
+import { Resources } from './Resources';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -264,6 +266,9 @@ const Dashboard: React.FC = () => {
               ))}
             </div>
           </motion.section>
+
+          {/* ── LEARNING RESOURCES ── */}
+          <Resources showDashboardSection={true} />
 
           {/* ── CONNECT ── */}
           <motion.section variants={itemVariants} className="space-y-8 pb-12">
