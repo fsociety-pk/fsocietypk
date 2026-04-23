@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Github, ExternalLink, BookOpen, Plus, AlertCircle } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { resourceService, IResource } from '../services/resource.service';
-import { toast } from 'sonner';
 
 const containerVariants = {
   hidden: { opacity: 0 },

@@ -19,7 +19,6 @@ import {
   Lock,
   Crosshair,
   Zap,
-  BookOpen,
 } from 'lucide-react';
 import { Resources } from './Resources';
 
